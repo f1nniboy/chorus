@@ -1,0 +1,7 @@
+/chorus*
+/data/gschemas.compiled
+
+/.flatpak-builder/
+/build-dir/
+/repo/
+/vendor/

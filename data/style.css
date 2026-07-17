@@ -1,0 +1,93 @@
+window.chorus-window {
+  background: none;
+}
+
+.cover.placeholder {
+  background: linear-gradient(160deg, #2e2e38, #16161c);
+}
+
+.cover.dim {
+  background: black;
+  opacity: 0.35;
+}
+
+window.chorus-window:not(.dark) .cover.dim {
+  background: white;
+  opacity: 0.5;
+}
+
+.line {
+  font-size: 22px;
+  font-weight: 600;
+  opacity: 0.3;
+  filter: blur(2px);
+  transform: scale(0.85);
+  transform-origin: 50% 50%;
+  transition: opacity 250ms ease, filter 250ms ease, transform 250ms ease;
+}
+
+.line.near {
+  opacity: 0.55;
+  filter: blur(1px);
+  transform: scale(0.95);
+}
+
+.line.current {
+  opacity: 1;
+  filter: none;
+  transform: scale(1.15);
+}
+
+.line.plain {
+  font-size: 20px;
+  font-weight: 500;
+  opacity: 0.85;
+  filter: none;
+  transform: none;
+}
+
+.instrumental,
+.instrumental.near {
+  min-height: 1.6em;
+  opacity: 0;
+  transform: scale(0);
+}
+
+.instrumental.current {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.dot {
+  font-size: 14px;
+  opacity: 0.3;
+  transform: scale(0.7);
+  transition: all 2s ease;
+}
+
+.dot.active {
+  opacity: 1;
+  transform: scale(1.3);
+}
+
+.player-row {
+  border-radius: 10px;
+}
+
+.player-row-art {
+  border-radius: 6px;
+  background-color: alpha(currentColor, 0.1);
+}
+
+.player-row-title {
+  font-weight: 600;
+}
+
+.player-row-title.current {
+  color: @accent_color;
+}
+
+.player-row-artist {
+  font-size: 0.9em;
+  opacity: 0.7;
+}
