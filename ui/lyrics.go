@@ -6,7 +6,6 @@ import (
 
 	"github.com/diamondburned/gotk4-adwaita/pkg/adw"
 	"github.com/diamondburned/gotk4/pkg/glib/v2"
-	"github.com/diamondburned/gotk4/pkg/graphene"
 	"github.com/diamondburned/gotk4/pkg/gtk/v4"
 
 	"github.com/f1nniboy/chorus/internal/lyrics"
@@ -29,15 +28,8 @@ type displayLine struct {
 	end   time.Duration
 }
 
-type lineWidget interface {
-	gtk.Widgetter
-	AddCSSClass(name string)
-	RemoveCSSClass(name string)
-	ComputeBounds(target gtk.Widgetter) (*graphene.Rect, bool)
-}
-
 type lineEntry struct {
-	widget lineWidget
+	widget *gtk.Widget
 	kind   lineKind
 	dots   []*gtk.Label
 }
@@ -71,7 +63,7 @@ func NewLyricsView() *LyricsView {
 	lv.status.AddCSSClass("compact")
 	stack.AddNamed(lv.status, "status")
 
-	lv.contentBox = gtk.NewBox(gtk.OrientationVertical, 20)
+	lv.contentBox = gtk.NewBox(gtk.OrientationVertical, lineSpacingPx)
 	lv.contentBox.SetVAlign(gtk.AlignCenter)
 	lv.contentBox.SetMarginStart(contentMarginPx)
 	lv.contentBox.SetMarginEnd(contentMarginPx)
@@ -184,17 +176,8 @@ func (lv *LyricsView) setLines(res lyrics.Result, pos time.Duration) {
 	}
 	lv.currentIdx = idx
 	applyLineStates(lv.lineEntries, idx)
-
-	// the freshly-appended widgets aren't laid out yet, so scrolling now would
-	// compute against stale geometry
-	// wait a tick, then position and reveal together so the content page never
-	// gets shown at the wrong scroll offset
-	glib.IdleAdd(func() {
-		if idx < len(lv.lineEntries) {
-			lv.scrollToLine(idx, false)
-		}
-		lv.updateVisiblePage()
-	})
+	lv.scrollToLine(idx, false)
+	lv.updateVisiblePage()
 }
 
 func (lv *LyricsView) clearContent() {
@@ -226,6 +209,8 @@ func (lv *LyricsView) SetPosition(pos time.Duration) {
 		applyLineStates(lv.lineEntries, idx)
 		if idx >= 0 && idx < len(lv.lineEntries) {
 			lv.scrollToLine(idx, true)
+		} else {
+			lv.scrollToTop(true)
 		}
 	}
 }

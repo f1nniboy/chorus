@@ -61,7 +61,7 @@ func (lv *LyricsView) buildLineEntry(dl displayLine) lineEntry {
 			box.Append(d)
 		}
 
-		return lineEntry{widget: box, kind: kindInstrumental, dots: dots}
+		return lineEntry{widget: gtk.BaseWidget(box), kind: kindInstrumental, dots: dots}
 	}
 
 	label := gtk.NewLabel(dl.text)
@@ -71,7 +71,7 @@ func (lv *LyricsView) buildLineEntry(dl displayLine) lineEntry {
 	}
 	label.SetWrap(true)
 	label.SetJustify(gtk.JustifyCenter)
-	return lineEntry{widget: label, kind: dl.kind}
+	return lineEntry{widget: gtk.BaseWidget(label), kind: dl.kind}
 }
 
 func applyLineStates(entries []lineEntry, currentIdx int) {
