@@ -149,6 +149,7 @@ func (lv *LyricsView) setLines(res lyrics.Result, pos time.Duration) {
 	} else {
 		lv.contentScroll.SetPolicy(gtk.PolicyNever, gtk.PolicyAutomatic)
 	}
+	lv.contentScroll.SetKineticScrolling(!synced)
 
 	lines := res.Lines
 	if !synced {
