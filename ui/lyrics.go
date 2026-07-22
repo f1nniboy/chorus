@@ -131,7 +131,7 @@ func (lv *LyricsView) SetResult(res lyrics.Result, err error, pos time.Duration)
 		if errors.Is(err, lyrics.ErrNotFound) {
 			lv.showStatus("dialog-question-symbolic", "No lyrics", "")
 		} else {
-			lv.showStatus("dialog-error-symbolic", "Couldn't fetch lyrics", err.Error())
+			lv.showStatus("network-error-symbolic", "Couldn't fetch lyrics", err.Error())
 		}
 		return
 	}
