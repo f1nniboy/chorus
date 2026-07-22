@@ -24,8 +24,12 @@ type Provider struct {
 func (p *Provider) ID() string   { return "lrcmux" }
 func (p *Provider) Name() string { return "lrcmux" }
 
+func (p *Provider) Init() {
+	p.BaseURL = strings.TrimRight(p.BaseURL, "/")
+}
+
 func (p *Provider) Fetch(ctx context.Context, q lyrics.TrackQuery) (lyrics.Result, error) {
-	u, err := url.Parse(strings.TrimRight(p.BaseURL, "/") + "/get")
+	u, err := url.Parse(p.BaseURL + "/get")
 	if err != nil {
 		return lyrics.Result{}, fmt.Errorf("lrcmux: invalid base URL: %w", err)
 	}
