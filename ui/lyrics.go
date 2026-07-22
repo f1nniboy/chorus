@@ -39,9 +39,6 @@ type LyricsView struct {
 
 	contentScroll *gtk.ScrolledWindow
 	contentBox    *gtk.Box
-	topSpacer     *gtk.Box
-	bottomSpacer  *gtk.Box
-	hasContent    bool
 
 	blockScroll bool
 
@@ -96,7 +93,7 @@ func NewLyricsView() *LyricsView {
 }
 
 func (lv *LyricsView) updateVisiblePage() {
-	if lv.hasContent {
+	if len(lv.lineEntries) > 0 {
 		lv.Stack.SetVisibleChildName("content")
 		return
 	}
@@ -162,7 +159,6 @@ func (lv *LyricsView) setLines(res lyrics.Result, pos time.Duration) {
 		lv.contentBox.Append(entry.widget)
 		lv.lineEntries = append(lv.lineEntries, entry)
 	}
-	lv.hasContent = true
 
 	if len(lv.lineEntries) == 0 {
 		lv.updateVisiblePage()
@@ -189,7 +185,6 @@ func (lv *LyricsView) clearContent() {
 	lv.lines = nil
 	lv.level = lyrics.LevelNone
 	lv.currentIdx = -1
-	lv.hasContent = false
 }
 
 func (lv *LyricsView) SetPosition(pos time.Duration) {
