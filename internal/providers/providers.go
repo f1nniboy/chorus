@@ -39,3 +39,13 @@ func New(name string, cfg map[string]any, client *http.Client) (lyrics.Provider,
 	}
 	return nil, fmt.Errorf("unknown provider: %s", name)
 }
+
+func Fields(name string) []ConfigField {
+	for _, f := range factories {
+		p := f()
+		if p.ID() == name {
+			return ConfigFields(p)
+		}
+	}
+	return nil
+}

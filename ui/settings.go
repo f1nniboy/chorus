@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"net/http"
 	"strconv"
 
 	"github.com/diamondburned/gotk4-adwaita/pkg/adw"
@@ -17,7 +16,6 @@ import (
 type Settings struct {
 	dialog        *adw.PreferencesDialog
 	cfg           *config.Config
-	httpClient    *http.Client
 	diskCache     *cache.Cache
 	providerGroup *adw.PreferencesGroup
 	configWidgets []gtk.Widgetter
@@ -26,11 +24,8 @@ type Settings struct {
 	dirty         bool
 }
 
-func NewSettings(cfg *config.Config, httpClient *http.Client, diskCache *cache.Cache, onChanged func()) *Settings {
-	s := &Settings{cfg: cfg, httpClient: httpClient, diskCache: diskCache, onChanged: onChanged}
-	for _, p := range providers.Available() {
-		s.providerIDs = append(s.providerIDs, p.ID)
-	}
+func NewSettings(cfg *config.Config, diskCache *cache.Cache, onChanged func()) *Settings {
+	s := &Settings{cfg: cfg, diskCache: diskCache, onChanged: onChanged}
 	s.build()
 	return s
 }
@@ -58,6 +53,7 @@ func (s *Settings) build() {
 
 	var labels []string
 	for _, p := range providers.Available() {
+		s.providerIDs = append(s.providerIDs, p.ID)
 		labels = append(labels, p.Name)
 	}
 
@@ -76,7 +72,7 @@ func (s *Settings) build() {
 	combo.NotifyProperty("selected", func() {
 		idx := combo.Selected()
 		if int(idx) < len(s.providerIDs) {
-			s.cfg.SetString("provider", s.providerIDs[idx])
+			s.cfg.SetProviderName(s.providerIDs[idx])
 			s.renderConfig()
 			s.dirty = true
 		}
@@ -124,12 +120,7 @@ func (s *Settings) renderConfig() {
 	s.configWidgets = s.configWidgets[:0]
 
 	name := s.cfg.ProviderName()
-	p, err := providers.New(name, nil, s.httpClient)
-	if err != nil {
-		return
-	}
-
-	fields := providers.ConfigFields(p)
+	fields := providers.Fields(name)
 	if len(fields) == 0 {
 		return
 	}

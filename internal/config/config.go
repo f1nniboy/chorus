@@ -46,6 +46,10 @@ func (c *Config) ProviderName() string {
 	return c.String("provider")
 }
 
+func (c *Config) SetProviderName(name string) {
+	c.SetString("provider", name)
+}
+
 func (c *Config) allProviderConfigs() map[string]map[string]any {
 	var all map[string]map[string]any
 	json.Unmarshal([]byte(c.String("provider-config")), &all) //nolint:errcheck // zero value is fine

@@ -61,7 +61,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		settings := ui.NewSettings(cfg, httpClient, diskCache, lc.RebuildProvider)
+		settings := ui.NewSettings(cfg, diskCache, lc.RebuildProvider)
 		settingsAction := gio.NewSimpleAction("settings", nil)
 		settingsAction.ConnectActivate(func(_ *glib.Variant) {
 			settings.Present(win)
