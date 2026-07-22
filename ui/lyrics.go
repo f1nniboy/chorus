@@ -11,7 +11,7 @@ import (
 	"github.com/f1nniboy/chorus/internal/lyrics"
 )
 
-const contentMarginPx = 50
+const contentMarginPx = 25
 
 type lineKind int
 

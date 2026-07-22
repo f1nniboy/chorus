@@ -24,7 +24,7 @@ func (lv *LyricsView) updateRunway() {
 // uses measure() instead of allocated bounds since it's synchronous, so this
 // works right after appending fresh widgets too, not just once they're laid out
 func (lv *LyricsView) scrollTarget(idx int) float64 {
-	width := lv.contentBox.Width() - 2*contentMarginPx
+	width := lv.contentBox.Width()
 	if width <= 0 {
 		width = -1
 	}
