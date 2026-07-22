@@ -107,7 +107,7 @@ func (lv *LyricsView) showStatus(icon, title, desc string) {
 	lv.status.SetPaintable(nil)
 	lv.status.SetIconName(icon)
 	lv.status.SetTitle(title)
-	lv.status.SetDescription(desc)
+	lv.status.SetDescription(glib.MarkupEscapeText(desc))
 	lv.updateVisiblePage()
 }
 
