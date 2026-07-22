@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
-	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/diamondburned/gotk4/pkg/glib/v2"
@@ -25,10 +25,8 @@ type lyricsController struct {
 	diskCache  *cache.Cache
 	view       *ui.LyricsView
 
-	fetcherMu sync.Mutex
-	fetcher   *lyrics.Fetcher
+	fetcher atomic.Pointer[lyrics.Fetcher]
 
-	lastTrackKey string
 	currentTrack mpris.Track
 	lastPosition time.Duration
 	fetchKey     string
@@ -36,41 +34,46 @@ type lyricsController struct {
 }
 
 func newLyricsController(cfg *config.Config, httpClient *http.Client, diskCache *cache.Cache, view *ui.LyricsView) (*lyricsController, error) {
-	p, err := providers.New(cfg.ProviderName(), cfg.ProviderConfig(cfg.ProviderName()), httpClient)
+	name := cfg.ProviderName()
+	p, err := providers.New(name, cfg.ProviderConfig(name), httpClient)
 	if err != nil {
 		return nil, err
 	}
-	return &lyricsController{
+	c := &lyricsController{
 		cfg:        cfg,
 		httpClient: httpClient,
 		diskCache:  diskCache,
 		view:       view,
-		fetcher:    lyrics.NewFetcher(p, diskCache),
-	}, nil
+	}
+	c.fetcher.Store(lyrics.NewFetcher(p, diskCache))
+	return c, nil
 }
 
 func (c *lyricsController) RebuildProvider() {
-	p, err := providers.New(c.cfg.ProviderName(), c.cfg.ProviderConfig(c.cfg.ProviderName()), c.httpClient)
-	if err != nil {
-		slog.Error("providers: rebuild failed", "err", err)
-		return
-	}
-	c.fetcherMu.Lock()
-	c.fetcher = lyrics.NewFetcher(p, c.diskCache)
-	c.fetcherMu.Unlock()
+	name := c.cfg.ProviderName()
+	cfg := c.cfg.ProviderConfig(name)
 
-	// a different provider may have different lyrics for the same track
-	if c.lastTrackKey != "" {
-		c.fetch(c.currentTrack)
-	}
+	go func() {
+		p, err := providers.New(name, cfg, c.httpClient)
+		if err != nil {
+			slog.Error("providers: rebuild failed", "err", err)
+			return
+		}
+		c.fetcher.Store(lyrics.NewFetcher(p, c.diskCache))
+
+		glib.IdleAdd(func() {
+			// a different provider may have different lyrics for the same track
+			if c.currentTrack.Key() != "" {
+				c.fetch(c.currentTrack)
+			}
+		})
+	}()
 }
 
 func (c *lyricsController) TrackChanged(track mpris.Track, pos time.Duration) {
-	key := track.Key()
-	if key == c.lastTrackKey {
+	if track.Key() == c.currentTrack.Key() {
 		return
 	}
-	c.lastTrackKey = key
 	c.currentTrack = track
 	c.lastPosition = pos
 	c.fetch(track)
@@ -81,7 +84,7 @@ func (c *lyricsController) UpdatePosition(pos time.Duration) {
 }
 
 func (c *lyricsController) Idle() {
-	c.lastTrackKey = ""
+	c.currentTrack = mpris.Track{}
 	c.fetchKey = ""
 	if c.cancel != nil {
 		c.cancel()
@@ -104,9 +107,7 @@ func (c *lyricsController) fetch(track mpris.Track) {
 	go func() {
 		defer cancel()
 
-		c.fetcherMu.Lock()
-		f := c.fetcher
-		c.fetcherMu.Unlock()
+		f := c.fetcher.Load()
 
 		res, err := f.Get(ctx, lyrics.TrackQuery{
 			Artist:   track.Artist,
