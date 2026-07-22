@@ -69,6 +69,15 @@ func decodeConfig(dst any, cfg map[string]any) {
 				n, _ = strconv.ParseInt(v, 10, 64)
 			}
 			fv.SetInt(n)
+		case reflect.Bool:
+			var b bool
+			switch v := raw.(type) {
+			case bool:
+				b = v
+			case string:
+				b, _ = strconv.ParseBool(v)
+			}
+			fv.SetBool(b)
 		}
 	}
 }

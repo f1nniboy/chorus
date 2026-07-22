@@ -190,8 +190,12 @@ func (s *Settings) addIntRow(f providers.ConfigField, val any) {
 func (s *Settings) addBoolRow(f providers.ConfigField, val any) {
 	row := adw.NewSwitchRow()
 	row.SetTitle(f.Label)
-	if v, ok := val.(bool); ok {
+	switch v := val.(type) {
+	case bool:
 		row.SetActive(v)
+	case string:
+		b, _ := strconv.ParseBool(v)
+		row.SetActive(b)
 	}
 	row.NotifyProperty("active", func() {
 		s.saveField(f.Key, row.Active())
