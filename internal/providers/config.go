@@ -6,13 +6,15 @@ import (
 )
 
 type ConfigField struct {
-	Key, Label, Type string
-	Default          any
+	Default any
+	Key     string
+	Label   string
+	Type    string
 }
 
 func ConfigFields(p any) []ConfigField {
 	rt := reflect.TypeOf(p)
-	if rt.Kind() == reflect.Ptr {
+	if rt.Kind() == reflect.Pointer {
 		rt = rt.Elem()
 	}
 
@@ -35,7 +37,7 @@ func ConfigFields(p any) []ConfigField {
 
 func decodeConfig(dst any, cfg map[string]any) {
 	rv := reflect.ValueOf(dst)
-	if rv.Kind() == reflect.Ptr {
+	if rv.Kind() == reflect.Pointer {
 		rv = rv.Elem()
 	}
 	rt := rv.Type()

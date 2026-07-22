@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"maps"
 	"slices"
-	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -65,34 +64,31 @@ type TrackUpdate struct {
 
 // the currently-selected player's identity plus its detach hook
 type attachment struct {
-	busName string
 	cancel  context.CancelFunc
+	busName string
 }
 
 // interpolates live playback position between MPRIS polls
 type posState struct {
-	base    time.Duration
 	baseAt  time.Time
+	base    time.Duration
 	rate    float64
 	playing bool
 }
 
 type Manager struct {
-	conn *dbus.Conn
-
-	playersCh  chan []Player
-	stateCh    chan State
-	positionCh chan time.Duration
-	tracksCh   chan TrackUpdate
-
-	mu         sync.Mutex
-	players    map[string]Player
-	busByOwner map[string]string
-	current    attachment
-	preferred  string
-	pos        posState
-
+	current            attachment
+	conn               *dbus.Conn
+	playersCh          chan []Player
+	stateCh            chan State
+	positionCh         chan time.Duration
+	tracksCh           chan TrackUpdate
+	players            map[string]Player
+	busByOwner         map[string]string
 	onPreferredChanged func(identity string)
+	preferred          string
+	pos                posState
+	mu                 sync.Mutex
 }
 
 func New(conn *dbus.Conn, preferredIdentity string) *Manager {
@@ -366,7 +362,7 @@ func (m *Manager) emitPlayers() {
 	}
 	m.mu.Unlock()
 
-	sort.Slice(list, func(i, j int) bool { return list[i].Identity < list[j].Identity })
+	slices.SortFunc(list, func(a, b Player) int { return strings.Compare(a.Identity, b.Identity) })
 
 	sendLatest(m.playersCh, list)
 }

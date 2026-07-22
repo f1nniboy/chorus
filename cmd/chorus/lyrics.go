@@ -20,17 +20,15 @@ import (
 const fetchTimeout = 15 * time.Second
 
 type lyricsController struct {
-	cfg        *config.Config
-	httpClient *http.Client
-	diskCache  *cache.Cache
-	view       *ui.LyricsView
-
-	fetcher atomic.Pointer[lyrics.Fetcher]
-
+	cfg          *config.Config
+	httpClient   *http.Client
+	diskCache    *cache.Cache
+	view         *ui.LyricsView
+	fetcher      atomic.Pointer[lyrics.Fetcher]
+	cancel       context.CancelFunc
+	fetchKey     string
 	currentTrack mpris.Track
 	lastPosition time.Duration
-	fetchKey     string
-	cancel       context.CancelFunc
 }
 
 func newLyricsController(cfg *config.Config, httpClient *http.Client, diskCache *cache.Cache, view *ui.LyricsView) (*lyricsController, error) {

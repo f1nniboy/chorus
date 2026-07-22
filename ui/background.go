@@ -16,16 +16,13 @@ const fadeMs = 1000
 
 type Background struct {
 	*gtk.Overlay
-
-	back  *gtk.Picture
-	front *gtk.Picture
-	dim   *gtk.Box
-
-	resolver *art.Resolver
-
+	back       *gtk.Picture
+	front      *gtk.Picture
+	dim        *gtk.Box
+	resolver   *art.Resolver
 	cancel     context.CancelFunc
-	lastArtURL string
 	fadeAnim   *adw.TimedAnimation
+	lastArtURL string
 }
 
 func NewBackground(resolver *art.Resolver) *Background {

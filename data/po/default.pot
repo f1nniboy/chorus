@@ -1,0 +1,57 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: chorus\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ui/header.go:31
+msgid "About"
+msgstr ""
+
+#: internal/providers/lrcmux/lrcmux.go:21
+msgid "Base URL"
+msgstr ""
+
+#: ui/settings.go:90
+msgid "Cache"
+msgstr ""
+
+#: ui/picker.go:39
+msgid "Choose player"
+msgstr ""
+
+#: ui/settings.go:101
+msgid "Clear cache"
+msgstr ""
+
+#: ui/lyrics.go:129
+msgid "Couldn't fetch lyrics"
+msgstr ""
+
+#: ui/settings.go:94
+msgid "Disk usage"
+msgstr ""
+
+#: ui/lyrics.go:127
+msgid "No lyrics"
+msgstr ""
+
+#: ui/lyrics.go:111
+msgid "Nothing playing"
+msgstr ""
+
+#: ui/lyrics.go:111
+msgid "Play something and lyrics will show up here."
+msgstr ""
+
+#: ui/settings.go:53 ui/settings.go:63
+msgid "Provider"
+msgstr ""
+
+#: ui/header.go:30 ui/settings.go:41
+msgid "Settings"
+msgstr ""
+
+#: ui/about.go:16
+msgid "View the lyrics for your currently playing music."
+msgstr ""

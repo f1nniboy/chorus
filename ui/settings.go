@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 
 	"github.com/diamondburned/gotk4-adwaita/pkg/adw"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/f1nniboy/chorus/internal/cache"
 	"github.com/f1nniboy/chorus/internal/config"
+	"github.com/f1nniboy/chorus/internal/locale"
 	"github.com/f1nniboy/chorus/internal/providers"
 )
 
@@ -18,9 +20,9 @@ type Settings struct {
 	cfg           *config.Config
 	diskCache     *cache.Cache
 	providerGroup *adw.PreferencesGroup
+	onChanged     func()
 	configWidgets []gtk.Widgetter
 	providerIDs   []string
-	onChanged     func()
 	dirty         bool
 }
 
@@ -36,7 +38,7 @@ func (s *Settings) Present(parent gtk.Widgetter) {
 
 func (s *Settings) build() {
 	s.dialog = adw.NewPreferencesDialog()
-	s.dialog.SetTitle("Settings")
+	s.dialog.SetTitle(locale.Get("Settings"))
 	s.dialog.ConnectClosed(func() {
 		if s.dirty {
 			s.dirty = false
@@ -48,7 +50,7 @@ func (s *Settings) build() {
 	s.dialog.Add(page)
 
 	providerGroup := adw.NewPreferencesGroup()
-	providerGroup.SetTitle("Provider")
+	providerGroup.SetTitle(locale.Get("Provider"))
 	page.Add(providerGroup)
 
 	var labels []string
@@ -58,7 +60,7 @@ func (s *Settings) build() {
 	}
 
 	combo := adw.NewComboRow()
-	combo.SetTitle("Provider")
+	combo.SetTitle(locale.Get("Provider"))
 	combo.SetModel(gtk.NewStringList(labels))
 
 	current := s.cfg.ProviderName()
@@ -85,18 +87,18 @@ func (s *Settings) build() {
 	s.renderConfig()
 
 	cacheGroup := adw.NewPreferencesGroup()
-	cacheGroup.SetTitle("Cache")
+	cacheGroup.SetTitle(locale.Get("Cache"))
 	page.Add(cacheGroup)
 
 	sizeRow := adw.NewActionRow()
-	sizeRow.SetTitle("Disk usage")
+	sizeRow.SetTitle(locale.Get("Disk usage"))
 	cacheGroup.Add(sizeRow)
 
 	clearButton := gtk.NewButton()
 	clearButton.SetIconName("user-trash-symbolic")
 	clearButton.AddCSSClass("circular")
 	clearButton.AddCSSClass("destructive-action")
-	clearButton.SetTooltipText("Clear cache")
+	clearButton.SetTooltipText(locale.Get("Clear cache"))
 	clearButton.SetVAlign(gtk.AlignCenter)
 	clearButton.SetSizeRequest(34, 34)
 	sizeRow.AddSuffix(clearButton)
@@ -149,7 +151,7 @@ func (s *Settings) renderConfig() {
 
 func (s *Settings) addStringRow(f providers.ConfigField, val any) {
 	row := adw.NewEntryRow()
-	row.SetTitle(f.Label)
+	row.SetTitle(locale.Get(f.Label))
 	if v, ok := val.(string); ok {
 		row.SetText(v)
 	}
@@ -161,8 +163,8 @@ func (s *Settings) addStringRow(f providers.ConfigField, val any) {
 }
 
 func (s *Settings) addIntRow(f providers.ConfigField, val any) {
-	row := adw.NewSpinRowWithRange(0, 60000, 1)
-	row.SetTitle(f.Label)
+	row := adw.NewSpinRowWithRange(0, math.MaxInt32, 1)
+	row.SetTitle(locale.Get(f.Label))
 	var n float64
 	switch v := val.(type) {
 	case float64:
@@ -180,7 +182,7 @@ func (s *Settings) addIntRow(f providers.ConfigField, val any) {
 
 func (s *Settings) addBoolRow(f providers.ConfigField, val any) {
 	row := adw.NewSwitchRow()
-	row.SetTitle(f.Label)
+	row.SetTitle(locale.Get(f.Label))
 	switch v := val.(type) {
 	case bool:
 		row.SetActive(v)
@@ -210,7 +212,6 @@ func (s *Settings) refreshCacheSize(row *adw.ActionRow) {
 	size, err := s.diskCache.Size()
 	glib.IdleAdd(func() {
 		if err != nil {
-			row.SetSubtitle("unknown")
 			return
 		}
 		row.SetSubtitle(formatSize(size))
@@ -219,17 +220,17 @@ func (s *Settings) refreshCacheSize(row *adw.ActionRow) {
 
 func formatSize(bytes int64) string {
 	const (
-		KB = 1024
-		MB = KB * 1024
-		GB = MB * 1024
+		kb = 1024
+		mb = kb * 1024
+		gb = mb * 1024
 	)
 	switch {
-	case bytes >= GB:
-		return fmt.Sprintf("%.1f GB", float64(bytes)/float64(GB))
-	case bytes >= MB:
-		return fmt.Sprintf("%.1f MB", float64(bytes)/float64(MB))
-	case bytes >= KB:
-		return fmt.Sprintf("%.1f KB", float64(bytes)/float64(KB))
+	case bytes >= gb:
+		return fmt.Sprintf("%.1f GB", float64(bytes)/float64(gb))
+	case bytes >= mb:
+		return fmt.Sprintf("%.1f MB", float64(bytes)/float64(mb))
+	case bytes >= kb:
+		return fmt.Sprintf("%.1f KB", float64(bytes)/float64(kb))
 	default:
 		return fmt.Sprintf("%d B", bytes)
 	}

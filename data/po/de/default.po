@@ -1,0 +1,59 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: chorus\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ui/header.go:31
+msgid "About"
+msgstr "Über"
+
+#: internal/providers/lrcmux/lrcmux.go:21
+msgid "Base URL"
+msgstr "Basis-URL"
+
+#: ui/settings.go:89
+msgid "Cache"
+msgstr "Zwischenspeicher"
+
+#: ui/picker.go:41
+msgid "Choose player"
+msgstr "Player auswählen"
+
+#: ui/settings.go:100
+msgid "Clear cache"
+msgstr "Zwischenspeicher leeren"
+
+#: ui/lyrics.go:132
+msgid "Couldn't fetch lyrics"
+msgstr "Songtext konnte nicht abgerufen werden"
+
+#: ui/settings.go:93
+msgid "Disk usage"
+msgstr "Speichernutzung"
+
+#: ui/lyrics.go:130
+msgid "No lyrics"
+msgstr "Kein Songtext"
+
+#: ui/lyrics.go:114
+msgid "Nothing playing"
+msgstr "Nichts wird wiedergegeben"
+
+#: ui/lyrics.go:114
+msgid "Play something and lyrics will show up here."
+msgstr "Spiele etwas ab und der Songtext wird hier angezeigt."
+
+#: ui/settings.go:52 ui/settings.go:62
+msgid "Provider"
+msgstr "Anbieter"
+
+#: ui/header.go:30 ui/settings.go:40
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: ui/about.go:16
+msgid "View the lyrics for your currently playing music."
+msgstr "Zeigt den Songtext für die aktuell wiedergegebene Musik."

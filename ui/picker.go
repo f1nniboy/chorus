@@ -8,6 +8,7 @@ import (
 	"github.com/diamondburned/gotk4/pkg/pango"
 
 	"github.com/f1nniboy/chorus/internal/art"
+	"github.com/f1nniboy/chorus/internal/locale"
 	"github.com/f1nniboy/chorus/internal/mpris"
 )
 
@@ -23,21 +24,19 @@ type playerRow struct {
 
 type Picker struct {
 	*gtk.MenuButton
-
-	popover  *gtk.Popover
-	listBox  *gtk.ListBox
-	resolver *art.Resolver
-
+	popover   *gtk.Popover
+	listBox   *gtk.ListBox
+	resolver  *art.Resolver
 	players   map[string]mpris.Player
 	rowsByBus map[string]*playerRow
-	current   string
 	onSelect  func(info mpris.Player)
+	current   string
 }
 
 func NewPicker(resolver *art.Resolver) *Picker {
 	button := gtk.NewMenuButton()
 	button.SetIconName("multimedia-player-symbolic")
-	button.SetTooltipText("Choose player")
+	button.SetTooltipText(locale.Get("Choose player"))
 	button.SetSensitive(false)
 
 	listBox := gtk.NewListBox()
@@ -153,12 +152,12 @@ func (pp *Picker) removeRow(busName string) {
 }
 
 func (pp *Picker) buildRow(p mpris.Player) *playerRow {
-	art := gtk.NewPicture()
-	art.SetContentFit(gtk.ContentFitCover)
-	art.SetCanShrink(true)
-	art.SetSizeRequest(playerRowArtSize, playerRowArtSize)
-	art.SetOverflow(gtk.OverflowHidden)
-	art.AddCSSClass("player-row-art")
+	pic := gtk.NewPicture()
+	pic.SetContentFit(gtk.ContentFitCover)
+	pic.SetCanShrink(true)
+	pic.SetSizeRequest(playerRowArtSize, playerRowArtSize)
+	pic.SetOverflow(gtk.OverflowHidden)
+	pic.AddCSSClass("player-row-art")
 
 	title := gtk.NewLabel(p.Identity)
 	title.SetXAlign(0)
@@ -180,7 +179,7 @@ func (pp *Picker) buildRow(p mpris.Player) *playerRow {
 	content.SetMarginBottom(8)
 	content.SetMarginStart(10)
 	content.SetMarginEnd(16)
-	content.Append(art)
+	content.Append(pic)
 	content.Append(text)
 
 	row := gtk.NewListBoxRow()
@@ -198,10 +197,10 @@ func (pp *Picker) buildRow(p mpris.Player) *playerRow {
 	row.ConnectActivate(activate)
 
 	click := gtk.NewGestureClick()
-	click.ConnectPressed(func(nPress int, x, y float64) { activate() })
+	click.ConnectPressed(func(_ int, _, _ float64) { activate() })
 	row.AddController(click)
 
 	pp.listBox.Append(row)
 
-	return &playerRow{box: row, art: art, title: title, artist: artist}
+	return &playerRow{box: row, art: pic, title: title, artist: artist}
 }

@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/diamondburned/gotk4/pkg/gio/v2"
@@ -16,7 +17,7 @@ type Config struct {
 func New() (*Config, error) {
 	source := gio.SettingsSchemaSourceGetDefault()
 	if source == nil {
-		return nil, fmt.Errorf("config: no GSettings schema source available")
+		return nil, errors.New("config: no GSettings schema source available")
 	}
 	schema := source.Lookup(SchemaID, true)
 	if schema == nil {

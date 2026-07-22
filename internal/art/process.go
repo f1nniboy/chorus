@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"image"
-	_ "image/gif"
-	_ "image/jpeg"
+	_ "image/gif"  // register gif decoder for image.Decode
+	_ "image/jpeg" // register jpeg decoder for image.Decode
 	"image/png"
 
-	_ "golang.org/x/image/webp"
+	_ "golang.org/x/image/webp" // register webp decoder for image.Decode
 
 	"github.com/anthonynsimon/bild/blur"
 	"github.com/anthonynsimon/bild/transform"

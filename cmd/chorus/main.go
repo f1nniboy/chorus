@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io/fs"
 	"log"
 	"log/slog"
 	"os"
@@ -18,6 +19,7 @@ import (
 	"github.com/f1nniboy/chorus/internal/art"
 	"github.com/f1nniboy/chorus/internal/cache"
 	"github.com/f1nniboy/chorus/internal/config"
+	"github.com/f1nniboy/chorus/internal/locale"
 	"github.com/f1nniboy/chorus/internal/mpris"
 	"github.com/f1nniboy/chorus/internal/providers/base"
 	"github.com/f1nniboy/chorus/ui"
@@ -26,6 +28,12 @@ import (
 const httpClientTimeout = 15 * time.Second
 
 //go:generate glib-compile-schemas ../../data
+//go:generate go run ../potgen
+
+func init() {
+	po, _ := fs.Sub(data.PO, "po")
+	locale.Load(po)
+}
 
 func main() {
 	app := adw.NewApplication("space.f1nn.chorus", 0)
@@ -40,13 +48,13 @@ func main() {
 		cssProvider.LoadFromString(string(data.CSS))
 		gtk.StyleContextAddProviderForDisplay(gdk.DisplayGetDefault(), cssProvider, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
-		diskCache, err := cache.New()
+		ca, err := cache.New()
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		httpClient := base.NewClient(httpClientTimeout)
-		artResolver := art.NewResolver(httpClient, diskCache)
+		artResolver := art.NewResolver(httpClient, ca)
 
 		win := ui.NewWindow(app, cfg, artResolver)
 
@@ -56,12 +64,12 @@ func main() {
 		})
 		app.AddAction(aboutAction)
 
-		lc, err := newLyricsController(cfg, httpClient, diskCache, win.Lyrics)
+		lc, err := newLyricsController(cfg, httpClient, ca, win.Lyrics)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		settings := ui.NewSettings(cfg, diskCache, lc.RebuildProvider)
+		settings := ui.NewSettings(cfg, ca, lc.RebuildProvider)
 		settingsAction := gio.NewSimpleAction("settings", nil)
 		settingsAction.ConnectActivate(func(_ *glib.Variant) {
 			settings.Present(win)

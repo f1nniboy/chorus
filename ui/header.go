@@ -6,6 +6,7 @@ import (
 	"github.com/diamondburned/gotk4/pkg/gtk/v4"
 
 	"github.com/f1nniboy/chorus/internal/art"
+	"github.com/f1nniboy/chorus/internal/locale"
 )
 
 type Header struct {
@@ -26,8 +27,8 @@ func NewHeader(artResolver *art.Resolver) *Header {
 	bar.PackStart(picker)
 
 	menu := gio.NewMenu()
-	menu.Append("Settings", "app.settings")
-	menu.Append("About", "app.about")
+	menu.Append(locale.Get("Settings"), "app.settings")
+	menu.Append(locale.Get("About"), "app.about")
 
 	menuButton := gtk.NewMenuButton()
 	menuButton.SetIconName("open-menu-symbolic")

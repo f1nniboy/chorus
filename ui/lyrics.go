@@ -8,6 +8,7 @@ import (
 	"github.com/diamondburned/gotk4/pkg/glib/v2"
 	"github.com/diamondburned/gotk4/pkg/gtk/v4"
 
+	"github.com/f1nniboy/chorus/internal/locale"
 	"github.com/f1nniboy/chorus/internal/lyrics"
 )
 
@@ -22,32 +23,29 @@ const (
 )
 
 type displayLine struct {
-	kind  lineKind
 	text  string
+	kind  lineKind
 	start time.Duration
 	end   time.Duration
 }
 
 type lineEntry struct {
 	widget *gtk.Widget
-	kind   lineKind
 	dots   []*gtk.Label
+	kind   lineKind
 }
 
 type LyricsView struct {
 	*gtk.Stack
-
 	contentScroll *gtk.ScrolledWindow
 	contentBox    *gtk.Box
-
-	blockScroll bool
-
-	lines       []displayLine
-	lineEntries []lineEntry
-	level       lyrics.Level
-	currentIdx  int
-	scrollAnim  *adw.TimedAnimation
-	status      *adw.StatusPage
+	scrollAnim    *adw.TimedAnimation
+	status        *adw.StatusPage
+	level         lyrics.Level
+	lines         []displayLine
+	lineEntries   []lineEntry
+	currentIdx    int
+	blockScroll   bool
 }
 
 func NewLyricsView() *LyricsView {
@@ -83,7 +81,7 @@ func NewLyricsView() *LyricsView {
 
 	blockScroll := gtk.NewEventControllerScroll(gtk.EventControllerScrollBothAxes)
 	blockScroll.SetPropagationPhase(gtk.PhaseCapture)
-	blockScroll.ConnectScroll(func(dx, dy float64) bool { return lv.blockScroll })
+	blockScroll.ConnectScroll(func(_, _ float64) bool { return lv.blockScroll })
 	lv.contentScroll.AddController(blockScroll)
 
 	stack.AddNamed(lv.contentScroll, "content")
@@ -110,7 +108,7 @@ func (lv *LyricsView) showStatus(icon, title, desc string) {
 
 func (lv *LyricsView) SetIdle() {
 	lv.clearContent()
-	lv.showStatus("audio-x-generic-symbolic", "Nothing playing", "Play something and lyrics will show up here.")
+	lv.showStatus("audio-x-generic-symbolic", locale.Get("Nothing playing"), locale.Get("Play something and lyrics will show up here."))
 }
 
 func (lv *LyricsView) SetLoading() {
@@ -126,9 +124,9 @@ func (lv *LyricsView) SetResult(res lyrics.Result, err error, pos time.Duration)
 	if err != nil {
 		lv.clearContent()
 		if errors.Is(err, lyrics.ErrNotFound) {
-			lv.showStatus("dialog-question-symbolic", "No lyrics", "")
+			lv.showStatus("dialog-question-symbolic", locale.Get("No lyrics"), "")
 		} else {
-			lv.showStatus("network-error-symbolic", "Couldn't fetch lyrics", err.Error())
+			lv.showStatus("network-error-symbolic", locale.Get("Couldn't fetch lyrics"), err.Error())
 		}
 		return
 	}
