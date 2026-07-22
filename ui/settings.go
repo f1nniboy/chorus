@@ -20,6 +20,7 @@ type Settings struct {
 	cfg           *config.Config
 	diskCache     *cache.Cache
 	providerGroup *adw.PreferencesGroup
+	sizeRow       *adw.ActionRow
 	onChanged     func()
 	configWidgets []gtk.Widgetter
 	providerIDs   []string
@@ -33,6 +34,7 @@ func NewSettings(cfg *config.Config, diskCache *cache.Cache, onChanged func()) *
 }
 
 func (s *Settings) Present(parent gtk.Widgetter) {
+	go s.refreshCacheSize(s.sizeRow)
 	s.dialog.Present(parent)
 }
 
@@ -93,6 +95,7 @@ func (s *Settings) build() {
 	sizeRow := adw.NewActionRow()
 	sizeRow.SetTitle(locale.Get("Disk usage"))
 	cacheGroup.Add(sizeRow)
+	s.sizeRow = sizeRow
 
 	clearButton := gtk.NewButton()
 	clearButton.SetIconName("user-trash-symbolic")
@@ -111,8 +114,6 @@ func (s *Settings) build() {
 			glib.IdleAdd(func() { clearButton.SetSensitive(true) })
 		}()
 	})
-
-	go s.refreshCacheSize(sizeRow)
 }
 
 func (s *Settings) renderConfig() {

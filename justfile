@@ -3,11 +3,13 @@ default: build
 schemas:
     glib-compile-schemas data/
 
+ldflags := "-X 'github.com/f1nniboy/chorus/internal/meta.Version=" + `git describe --tags --abbrev=0 2>/dev/null || echo dev` + "'"
+
 build: schemas
-    go build -o chorus ./cmd/chorus
+    go build -ldflags="{{ldflags}}" -o chorus ./cmd/chorus
 
 run: schemas
-    GSETTINGS_SCHEMA_DIR=data go run ./cmd/chorus
+    GSETTINGS_SCHEMA_DIR=data go run -ldflags="{{ldflags}}" ./cmd/chorus
 
 gen:
     go generate ./...
@@ -25,6 +27,13 @@ new-lang lang: gen
 
 lint:
     golangci-lint run ./...
+
+flatpak-build:
+    flatpak run --command=flathub-build org.flatpak.Builder --install space.f1nn.chorus.dev.yml
+
+flatpak-lint:
+    flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest space.f1nn.chorus.yml
+    flatpak run --command=flatpak-builder-lint org.flatpak.Builder repo repo
 
 fix: fmt
     go fix ./...

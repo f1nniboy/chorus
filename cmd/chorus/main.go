@@ -20,6 +20,7 @@ import (
 	"github.com/f1nniboy/chorus/internal/cache"
 	"github.com/f1nniboy/chorus/internal/config"
 	"github.com/f1nniboy/chorus/internal/locale"
+	"github.com/f1nniboy/chorus/internal/meta"
 	"github.com/f1nniboy/chorus/internal/mpris"
 	"github.com/f1nniboy/chorus/internal/providers/base"
 	"github.com/f1nniboy/chorus/ui"
@@ -36,7 +37,7 @@ func init() {
 }
 
 func main() {
-	app := adw.NewApplication("space.f1nn.chorus", 0)
+	app := adw.NewApplication(meta.AppID, 0)
 
 	app.ConnectActivate(func() {
 		cfg, err := config.New()

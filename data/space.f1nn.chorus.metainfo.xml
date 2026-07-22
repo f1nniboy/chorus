@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>space.f1nn.chorus</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Chorus</name>
+  <summary>View the lyrics for your currently playing music</summary>
+  <description>
+    <p>
+      Chorus watches whatever music player is running over MPRIS and shows
+      synced or plain lyrics for the current track.
+    </p>
+  </description>
+  <launchable type="desktop-id">space.f1nn.chorus.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Synced lyrics scrolling over a blurred cover art background</caption>
+      <image>https://raw.githubusercontent.com/f1nniboy/chorus/main/data/screenshots/1.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Choosing a lyrics provider in Settings</caption>
+      <image>https://raw.githubusercontent.com/f1nniboy/chorus/main/data/screenshots/2.png</image>
+    </screenshot>
+  </screenshots>
+  <url type="homepage">https://github.com/f1nniboy/chorus</url>
+  <url type="bugtracker">https://github.com/f1nniboy/chorus/issues</url>
+  <content_rating type="oars-1.1" />
+  <developer id="space.f1nn">
+    <name>f1nniboy</name>
+  </developer>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </supports>
+</component>

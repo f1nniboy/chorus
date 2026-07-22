@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Chorus
+Comment=View the lyrics for your currently playing music
+Exec=chorus
+Icon=space.f1nn.chorus
+Terminal=false
+Categories=Audio;Music;
+StartupNotify=true

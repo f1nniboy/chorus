@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	"github.com/diamondburned/gotk4/pkg/gio/v2"
-)
 
-const SchemaID = "space.f1nn.chorus"
+	"github.com/f1nniboy/chorus/internal/meta"
+)
 
 type Config struct {
 	*gio.Settings
@@ -19,11 +19,11 @@ func New() (*Config, error) {
 	if source == nil {
 		return nil, errors.New("config: no GSettings schema source available")
 	}
-	schema := source.Lookup(SchemaID, true)
+	schema := source.Lookup(meta.AppID, true)
 	if schema == nil {
-		return nil, fmt.Errorf("config: GSettings schema %q not found; run glib-compile-schemas data/", SchemaID)
+		return nil, fmt.Errorf("config: GSettings schema %q not found; run glib-compile-schemas data/", meta.AppID)
 	}
-	return &Config{Settings: gio.NewSettings(SchemaID)}, nil
+	return &Config{Settings: gio.NewSettings(meta.AppID)}, nil
 }
 
 func (c *Config) LastPlayerIdentity() string {

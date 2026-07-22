@@ -1,0 +1,39 @@
+app-id: space.f1nn.chorus
+runtime: org.gnome.Platform
+runtime-version: "50"
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.golang
+command: chorus
+
+finish-args:
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  - --share=ipc
+  - --share=network
+  - --talk-name=org.mpris.MediaPlayer2.*
+
+build-options:
+  append-path: /usr/lib/sdk/golang/bin
+  env:
+    GOFLAGS: -mod=vendor
+    GOCACHE: /run/build/chorus/go-build-cache
+
+modules:
+  - name: chorus
+    buildsystem: simple
+    build-commands:
+      - go build -ldflags="-X 'github.com/f1nniboy/chorus/internal/meta.Version=$(git describe --tags --abbrev=0 2>/dev/null || echo dev)'" -o chorus ./cmd/chorus
+      - install -Dm755 chorus /app/bin/chorus
+      - install -Dm644 data/space.f1nn.chorus.gschema.xml /app/share/glib-2.0/schemas/space.f1nn.chorus.gschema.xml
+      - glib-compile-schemas /app/share/glib-2.0/schemas
+      - install -Dm644 data/space.f1nn.chorus.desktop /app/share/applications/space.f1nn.chorus.desktop
+      - install -Dm644 data/space.f1nn.chorus.metainfo.xml /app/share/metainfo/space.f1nn.chorus.metainfo.xml
+      - install -Dm644 data/icons/hicolor/scalable/apps/space.f1nn.chorus.svg /app/share/icons/hicolor/scalable/apps/space.f1nn.chorus.svg
+      - install -Dm644 data/icons/hicolor/symbolic/apps/space.f1nn.chorus-symbolic.svg /app/share/icons/hicolor/symbolic/apps/space.f1nn.chorus-symbolic.svg
+    sources:
+      - type: git
+        url: https://github.com/f1nniboy/chorus.git
+        commit: c64c0c8f8a8d847c34704a587a52b96c11d28a04
+      - go.mod.yml

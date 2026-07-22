@@ -13,7 +13,7 @@ Chorus watches whatever media player is running on your system over MPRIS and sh
 - Follows any MPRIS-compatible player automatically, or pick one manually
 - Synced lyrics scroll and highlight the current line as the song plays
 - Falls back to plain lyrics when no synced version is available
-- Blurred album art as a live background
+- Blurred cover art as a live background (not available for some players when using Flatpak, due to sandbox limitations)
 - Pluggable lyrics providers, [lrcmux](https://github.com/f1nniboy/lrcmux) by default
 
 ## Installation
