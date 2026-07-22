@@ -29,14 +29,7 @@ type Background struct {
 }
 
 func NewBackground(resolver *art.Resolver) *Background {
-	gradient := gtk.NewBox(gtk.OrientationVertical, 0)
-	gradient.AddCSSClass("cover")
-	gradient.AddCSSClass("placeholder")
-	gradient.SetHExpand(true)
-	gradient.SetVExpand(true)
-
 	overlay := gtk.NewOverlay()
-	overlay.SetChild(gradient)
 
 	newLayer := func() *gtk.Picture {
 		pic := gtk.NewPicture()
@@ -46,12 +39,13 @@ func NewBackground(resolver *art.Resolver) *Background {
 		pic.SetHExpand(true)
 		pic.SetVExpand(true)
 		pic.SetOpacity(0)
-		overlay.AddOverlay(pic)
 		return pic
 	}
 
 	back := newLayer()
 	front := newLayer()
+	overlay.SetChild(back)
+	overlay.AddOverlay(front)
 
 	dim := gtk.NewBox(gtk.OrientationVertical, 0)
 	dim.AddCSSClass("cover")
