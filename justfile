@@ -26,6 +26,9 @@ new-lang lang: gen
 lint:
     golangci-lint run ./...
 
+flatpak-mod:
+    flatpak-go-mod
+
 flatpak-build:
     flatpak run --command=flathub-build org.flatpak.Builder --install space.f1nn.chorus.dev.yml
 

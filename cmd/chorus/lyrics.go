@@ -17,7 +17,7 @@ import (
 	"github.com/f1nniboy/chorus/ui"
 )
 
-const fetchTimeout = 15 * time.Second
+const fetchTimeout = 30 * time.Second
 
 type lyricsController struct {
 	cfg          *config.Config
