@@ -7,30 +7,57 @@
   <summary>View the lyrics for your currently playing music</summary>
   <description>
     <p>
-      Chorus watches whatever music player is running over MPRIS and shows
+      Chorus watches whatever music player is running on your system and shows
       synced or plain lyrics for the current track.
     </p>
+    <p>Features:</p>
+    <ul>
+      <li>Follows any MPRIS-compatible player automatically, or lets you pick one manually</li>
+      <li>Synced lyrics scroll and highlight the current line as the song plays</li>
+      <li>Falls back to plain lyrics when no synced version is available</li>
+      <li>Blurred cover art as a live background</li>
+    </ul>
   </description>
   <launchable type="desktop-id">space.f1nn.chorus.desktop</launchable>
   <screenshots>
     <screenshot type="default">
-      <caption>Synced lyrics scrolling over a blurred cover art background</caption>
+      <caption>The main window</caption>
       <image>https://raw.githubusercontent.com/f1nniboy/chorus/main/data/screenshots/1.png</image>
     </screenshot>
     <screenshot>
-      <caption>Choosing a lyrics provider in Settings</caption>
+      <caption>The settings pop-up</caption>
       <image>https://raw.githubusercontent.com/f1nniboy/chorus/main/data/screenshots/2.png</image>
     </screenshot>
   </screenshots>
   <url type="homepage">https://github.com/f1nniboy/chorus</url>
+  <url type="vcs-browser">https://github.com/f1nniboy/chorus</url>
   <url type="bugtracker">https://github.com/f1nniboy/chorus/issues</url>
   <content_rating type="oars-1.1" />
+  <categories>
+    <category>Audio</category>
+    <category>Music</category>
+  </categories>
+  <keywords>
+    <keyword>lyrics</keyword>
+    <keyword>sync</keyword>
+    <keyword>music</keyword>
+  </keywords>
+  <recommends>
+    <internet>always</internet>
+  </recommends>
   <developer id="space.f1nn">
-    <name>f1nniboy</name>
+    <name translate="no">f1nniboy</name>
   </developer>
   <supports>
     <control>pointing</control>
     <control>keyboard</control>
     <control>touch</control>
   </supports>
+  <releases>
+    <release version="0.2.0" date="2026-07-23">
+      <description>
+        <p>This is the initial release.</p>
+      </description>
+    </release>
+  </releases>
 </component>

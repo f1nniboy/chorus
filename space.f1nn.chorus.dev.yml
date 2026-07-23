@@ -25,13 +25,13 @@ modules:
     buildsystem: simple
     build-commands:
       - go build -o chorus ./cmd/chorus
-      - install -Dm755 chorus /app/bin/chorus
-      - install -Dm644 data/space.f1nn.chorus.gschema.xml /app/share/glib-2.0/schemas/space.f1nn.chorus.gschema.xml
-      - glib-compile-schemas /app/share/glib-2.0/schemas
-      - install -Dm644 data/space.f1nn.chorus.desktop /app/share/applications/space.f1nn.chorus.desktop
-      - install -Dm644 data/space.f1nn.chorus.metainfo.xml /app/share/metainfo/space.f1nn.chorus.metainfo.xml
-      - install -Dm644 data/icons/hicolor/scalable/apps/space.f1nn.chorus.svg /app/share/icons/hicolor/scalable/apps/space.f1nn.chorus.svg
-      - install -Dm644 data/icons/hicolor/symbolic/apps/space.f1nn.chorus-symbolic.svg /app/share/icons/hicolor/symbolic/apps/space.f1nn.chorus-symbolic.svg
+      - install -Dm755 chorus ${FLATPAK_DEST}/bin/chorus
+      - install -Dm644 data/${FLATPAK_ID}.gschema.xml ${FLATPAK_DEST}/share/glib-2.0/schemas/${FLATPAK_ID}.gschema.xml
+      - glib-compile-schemas ${FLATPAK_DEST}/share/glib-2.0/schemas
+      - install -Dm644 data/${FLATPAK_ID}.desktop ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
+      - install -Dm644 data/${FLATPAK_ID}.metainfo.xml ${FLATPAK_DEST}/share/metainfo/${FLATPAK_ID}.metainfo.xml
+      - install -Dm644 data/icons/hicolor/scalable/apps/${FLATPAK_ID}.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/${FLATPAK_ID}.svg
+      - install -Dm644 data/icons/hicolor/symbolic/apps/${FLATPAK_ID}-symbolic.svg ${FLATPAK_DEST}/share/icons/hicolor/symbolic/apps/${FLATPAK_ID}-symbolic.svg
     sources:
       - type: dir
         path: .
