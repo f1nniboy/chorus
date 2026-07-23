@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.3.0](https://github.com/f1nniboy/chorus/compare/v0.2.0...v0.3.0) (2026-07-23)
+
+
+### Features
+
+* **metainfo:** add more info ([14847ee](https://github.com/f1nniboy/chorus/commit/14847eeb1549e0d44af85e91fabe7ca388eb6585))
+
+
+### Bug fixes
+
+* **lyrics:** increase fetch timeout ([b88c036](https://github.com/f1nniboy/chorus/commit/b88c036232b3564b656d917fde25a31e5ce3fcbc))
+* **meta:** set Version via release-please ([b1ce811](https://github.com/f1nniboy/chorus/commit/b1ce811e838cb7a1871995d074d3be0b20f29c2e))
+* **release-please:** fix version marker ([5aa567c](https://github.com/f1nniboy/chorus/commit/5aa567cbbb29936a98f68b64e919c381a3015354))
+* **style:** consistent bg opacity ([2c2f473](https://github.com/f1nniboy/chorus/commit/2c2f47384cff11df725297e7137b90fc30fb2612))
+
+
+### Documentation
+
+* **README:** some changes ([abc7c6e](https://github.com/f1nniboy/chorus/commit/abc7c6ecde2675b9595995e6a7d088964053e78b))
+
+
+### Refactors
+
+* don't hardcode app name, set proper title ([2c2f473](https://github.com/f1nniboy/chorus/commit/2c2f47384cff11df725297e7137b90fc30fb2612))
+* **flatpak:** use vars in manifests, bump commit ([14847ee](https://github.com/f1nniboy/chorus/commit/14847eeb1549e0d44af85e91fabe7ca388eb6585))
+
+
+### Build
+
+* **flatpak:** polish metadata and manifests ([d37b231](https://github.com/f1nniboy/chorus/commit/d37b2317712bc59117d6c8a4ac4c5520b095a866))
+
 ## [0.2.0](https://github.com/f1nniboy/chorus/compare/v0.1.0...v0.2.0) (2026-07-22)
 
 
