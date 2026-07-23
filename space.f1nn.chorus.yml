@@ -24,7 +24,7 @@ modules:
   - name: chorus
     buildsystem: simple
     build-commands:
-      - go build -ldflags="-X 'github.com/f1nniboy/chorus/internal/meta.Version=$(git describe --tags --abbrev=0 2>/dev/null || echo dev)'" -o chorus ./cmd/chorus
+      - go build -o chorus ./cmd/chorus
       - install -Dm755 chorus ${FLATPAK_DEST}/bin/chorus
       - install -Dm644 data/${FLATPAK_ID}.gschema.xml ${FLATPAK_DEST}/share/glib-2.0/schemas/${FLATPAK_ID}.gschema.xml
       - glib-compile-schemas ${FLATPAK_DEST}/share/glib-2.0/schemas

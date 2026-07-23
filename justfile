@@ -3,13 +3,11 @@ default: build
 schemas:
     glib-compile-schemas data/
 
-ldflags := "-X 'github.com/f1nniboy/chorus/internal/meta.Version=" + `git describe --tags --abbrev=0 2>/dev/null || echo dev` + "'"
-
 build: schemas
-    go build -ldflags="{{ldflags}}" -o chorus ./cmd/chorus
+    go build -o chorus ./cmd/chorus
 
 run: schemas
-    GSETTINGS_SCHEMA_DIR=data go run -ldflags="{{ldflags}}" ./cmd/chorus
+    GSETTINGS_SCHEMA_DIR=data go run ./cmd/chorus
 
 gen:
     go generate ./...
