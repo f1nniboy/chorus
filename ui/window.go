@@ -6,6 +6,7 @@ import (
 
 	"github.com/f1nniboy/chorus/internal/art"
 	"github.com/f1nniboy/chorus/internal/config"
+	"github.com/f1nniboy/chorus/internal/meta"
 )
 
 type Window struct {
@@ -20,16 +21,16 @@ type Window struct {
 func NewWindow(app *adw.Application, cfg *config.Config, artResolver *art.Resolver) *Window {
 	win := &Window{
 		ApplicationWindow: adw.NewApplicationWindow(&app.Application),
-		cfg:               cfg,
 		Background:        NewBackground(artResolver),
 		Lyrics:            NewLyricsView(),
 		Header:            NewHeader(artResolver),
+		cfg:               cfg,
 	}
 
-	win.SetTitle("chorus")
+	win.SetTitle(meta.AppName)
 	width, height := cfg.WindowSize()
 	win.SetDefaultSize(width, height)
-	win.AddCSSClass("chorus-window")
+	win.AddCSSClass("app-window")
 
 	sm := adw.StyleManagerGetDefault()
 	win.updateDarkClass(sm.Dark())

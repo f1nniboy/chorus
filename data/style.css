@@ -1,19 +1,18 @@
-window.chorus-window {
+window.app-window {
     background: linear-gradient(160deg, #2e2e38, #16161c);
 }
 
-window.chorus-window:not(.dark) {
+window.app-window:not(.dark) {
     background: linear-gradient(160deg, #e4e4ea, #c9c9d3);
 }
 
 .cover.dim {
     background: black;
-    opacity: 0.3;
+    opacity: 0.5;
 }
 
-window.chorus-window:not(.dark) .cover.dim {
+window.app-window:not(.dark) .cover.dim {
     background: white;
-    opacity: 0.6;
 }
 
 .line {

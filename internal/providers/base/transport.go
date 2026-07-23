@@ -3,9 +3,11 @@ package base
 import (
 	"net/http"
 	"time"
+
+	"github.com/f1nniboy/chorus/internal/meta"
 )
 
-const userAgent = "chorus (https://github.com/f1nniboy/chorus)"
+const userAgent = meta.AppName + "/" + meta.Version + " (" + meta.AppRepo + ")"
 
 type uaTransport struct{ inner http.RoundTripper }
 

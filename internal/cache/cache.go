@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/f1nniboy/chorus/internal/meta"
 )
 
 type Cache struct {
@@ -18,7 +20,7 @@ func New() (*Cache, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cache: resolve user cache dir: %w", err)
 	}
-	dir := filepath.Join(base, "chorus")
+	dir := filepath.Join(base, strings.ToLower(meta.AppName))
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, fmt.Errorf("cache: create: %w", err)
 	}
