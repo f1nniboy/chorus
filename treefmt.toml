@@ -2,3 +2,7 @@
 command = "gofmt"
 options = ["-w"]
 includes = ["*.go"]
+
+[formatter.xml]
+command = "scripts/xmlfmt.sh"
+includes = ["*.xml"]

@@ -2,9 +2,9 @@ app-id: space.f1nn.chorus
 runtime: org.gnome.Platform
 runtime-version: "50"
 sdk: org.gnome.Sdk
+command: chorus
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.golang
-command: chorus
 
 finish-args:
   - --socket=wayland
