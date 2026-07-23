@@ -6,5 +6,4 @@ const (
 	AppRepo = "https://github.com/f1nniboy/chorus"
 )
 
-// x-release-please-version
-var Version = "0.2.0"
+const Version = "0.2.0"

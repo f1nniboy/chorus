@@ -8,12 +8,7 @@
     ".": {
       "package-name": "chorus",
       "changelog-path": "CHANGELOG.md",
-      "extra-files": [
-        {
-          "type": "generic",
-          "path": "internal/meta/meta.go"
-        }
-      ]
+      "version-file": "internal/meta/meta.go"
     }
   },
   "changelog-sections": [
