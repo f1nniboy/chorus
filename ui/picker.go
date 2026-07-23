@@ -15,11 +15,12 @@ import (
 const playerRowArtSize = 40
 
 type playerRow struct {
-	box    *gtk.ListBoxRow
-	art    *gtk.Picture
-	title  *gtk.Label
-	artist *gtk.Label
-	artURL string
+	box     *gtk.ListBoxRow
+	art     *gtk.Picture
+	title   *gtk.Label
+	artist  *gtk.Label
+	artURL  string
+	busName string
 }
 
 type Picker struct {
@@ -55,6 +56,23 @@ func NewPicker(resolver *art.Resolver) *Picker {
 		players:    map[string]mpris.Player{},
 		rowsByBus:  map[string]*playerRow{},
 	}
+
+	listBox.ConnectRowActivated(func(activated *gtk.ListBoxRow) {
+		for _, row := range pp.rowsByBus {
+			if row.box.Object.Native() != activated.Object.Native() {
+				continue
+			}
+			p, ok := pp.players[row.busName]
+			if !ok {
+				return
+			}
+			pp.popover.Popdown()
+			if pp.onSelect != nil {
+				pp.onSelect(p)
+			}
+			return
+		}
+	})
 
 	return pp
 }
@@ -187,20 +205,7 @@ func (pp *Picker) buildRow(p mpris.Player) *playerRow {
 	row.SetChild(content)
 	row.SetActivatable(true)
 
-	activate := func() {
-		pp.popover.Popdown()
-		if pp.onSelect != nil {
-			pp.onSelect(p)
-		}
-	}
-
-	row.ConnectActivate(activate)
-
-	click := gtk.NewGestureClick()
-	click.ConnectPressed(func(_ int, _, _ float64) { activate() })
-	row.AddController(click)
-
 	pp.listBox.Append(row)
 
-	return &playerRow{box: row, art: pic, title: title, artist: artist}
+	return &playerRow{box: row, art: pic, title: title, artist: artist, busName: p.BusName}
 }
