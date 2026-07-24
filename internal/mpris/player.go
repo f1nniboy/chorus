@@ -9,13 +9,7 @@ import (
 	gompris "github.com/leberKleber/go-mpris"
 )
 
-// lets autoSelect skip refreshState re-fetching what it already probed
-type knownState struct {
-	status gompris.PlaybackStatus
-	track  Track
-}
-
-func (m *Manager) attachPlayer(busName string, known *knownState) {
+func (m *Manager) attachPlayer(busName string) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	m.mu.Lock()
@@ -37,7 +31,7 @@ func (m *Manager) attachPlayer(busName string, known *knownState) {
 		m.conn.RemoveMatchSignal(seekedOpts...)
 	}()
 
-	m.refreshState(busName, known)
+	m.refreshState(busName)
 }
 
 func (m *Manager) Snapshot(busName string) Track {
@@ -46,30 +40,23 @@ func (m *Manager) Snapshot(busName string) Track {
 	return trackFromMetadata(metadata)
 }
 
-func (m *Manager) refreshState(busName string, known *knownState) {
+func (m *Manager) refreshState(busName string) {
 	player := gompris.NewPlayerWithConnection(busName, m.conn)
 
 	m.mu.Lock()
 	info := m.players[busName]
 	m.mu.Unlock()
 
-	var status gompris.PlaybackStatus
-	var track Track
-	if known != nil {
-		status, track = known.status, known.track
-	} else {
-		var err error
-		status, err = player.PlaybackStatus()
-		if err != nil {
-			slog.Warn("mpris: PlaybackStatus read failed", "player", busName, "err", err)
-		}
-
-		metadata, err := player.Metadata()
-		if err != nil {
-			slog.Warn("mpris: Metadata read failed", "player", busName, "err", err)
-		}
-		track = trackFromMetadata(metadata)
+	status, err := player.PlaybackStatus()
+	if err != nil {
+		slog.Warn("mpris: PlaybackStatus read failed", "player", busName, "err", err)
 	}
+
+	metadata, err := player.Metadata()
+	if err != nil {
+		slog.Warn("mpris: Metadata read failed", "player", busName, "err", err)
+	}
+	track := trackFromMetadata(metadata)
 
 	positionMicros, err := player.Position()
 	if err != nil {
@@ -83,11 +70,16 @@ func (m *Manager) refreshState(busName string, known *knownState) {
 
 	pos := time.Duration(positionMicros) * time.Microsecond
 
-	m.mu.Lock()
-	m.pos = posState{base: pos, baseAt: time.Now(), rate: rate, playing: status == gompris.PlaybackStatusPlaying}
-	m.mu.Unlock()
+	m.setTrack(busName, track)
 
-	sendLatest(m.stateCh, State{Player: info, Status: status, Track: track, Position: pos})
+	m.mu.Lock()
+	if busName != m.current.busName {
+		m.mu.Unlock()
+		return
+	}
+	m.pos = posState{base: pos, baseAt: time.Now(), rate: rate, playing: status == gompris.PlaybackStatusPlaying}
+	sendLatest(m.playbackCh, Playback{Player: info, Status: status, Track: track, Position: pos})
+	m.mu.Unlock()
 }
 
 func (m *Manager) handlePropertiesChanged(sig *dbus.Signal) {
@@ -95,40 +87,33 @@ func (m *Manager) handlePropertiesChanged(sig *dbus.Signal) {
 	busName, known := m.busByOwner[sig.Sender]
 	isCurrent := known && busName == m.current.busName
 	m.mu.Unlock()
-	if !known || len(sig.Body) < 2 {
+	if !known {
 		return
 	}
 
-	iface, _ := sig.Body[0].(string)
+	var iface string
+	var changed map[string]dbus.Variant
+	var invalidated []string
+	if err := dbus.Store(sig.Body, &iface, &changed, &invalidated); err != nil {
+		return
+	}
 	if iface != playerInterface {
 		return
 	}
-	changed, _ := sig.Body[1].(map[string]dbus.Variant)
 
 	_, statusChanged := changed["PlaybackStatus"]
 	_, metadataChanged := changed["Metadata"]
+	_, rateChanged := changed["Rate"]
 
 	if !isCurrent {
 		if metadataChanged {
-			trySend(m.tracksCh, TrackUpdate{BusName: busName, Track: m.Snapshot(busName)})
+			m.setTrack(busName, m.Snapshot(busName))
 		}
 		return
 	}
 
-	if statusChanged || metadataChanged {
-		m.refreshState(busName, nil)
-		return
-	}
-
-	if v, ok := changed["Rate"]; ok {
-		if rate, ok := v.Value().(float64); ok && rate != 0 {
-			m.mu.Lock()
-			elapsed := time.Since(m.pos.baseAt)
-			m.pos.base += time.Duration(float64(elapsed) * m.pos.rate)
-			m.pos.baseAt = time.Now()
-			m.pos.rate = rate
-			m.mu.Unlock()
-		}
+	if statusChanged || metadataChanged || rateChanged {
+		m.refreshState(busName)
 	}
 }
 

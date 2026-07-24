@@ -82,45 +82,37 @@ func main() {
 			log.Fatal(err)
 		}
 		mgr := mpris.New(conn, cfg.LastPlayerIdentity())
-		mgr.OnPreferredChanged(cfg.SetLastPlayerIdentity)
 
 		win.Header.Picker.OnSelect(func(info mpris.Player) {
+			cfg.SetLastPlayerIdentity(info.Identity)
 			mgr.SelectPlayerManually(info)
 		})
 
 		go func() {
 			for {
 				select {
-				case players := <-mgr.Players():
+				case entries := <-mgr.Roster():
 					glib.IdleAdd(func() {
-						win.Header.Picker.SetPlayers(players)
+						win.Header.Picker.SetRoster(entries)
 					})
 
-				case state := <-mgr.State():
+				case pb := <-mgr.Playback():
 					glib.IdleAdd(func() {
-						win.Header.Picker.SetCurrent(state.Player.BusName)
+						win.Header.Picker.SetCurrent(pb.Player.BusName)
 
-						if state.IsIdle() {
+						if pb.IsIdle() {
 							lc.Idle()
 							win.Background.SetArtURL("")
-							win.Lyrics.SetIdle()
 							return
 						}
 
-						win.Header.Picker.SetPlayerTrack(state.Player.BusName, state.Track)
-						win.Background.SetArtURL(state.Track.ArtURL)
-						lc.TrackChanged(state.Track, state.Position)
+						win.Background.SetArtURL(pb.Track.ArtURL)
+						lc.TrackChanged(pb.Track, pb.Position)
 					})
 
 				case pos := <-mgr.Position():
 					glib.IdleAdd(func() {
-						win.Lyrics.SetPosition(pos)
 						lc.UpdatePosition(pos)
-					})
-
-				case update := <-mgr.Tracks():
-					glib.IdleAdd(func() {
-						win.Header.Picker.SetPlayerTrack(update.BusName, update.Track)
 					})
 				}
 			}

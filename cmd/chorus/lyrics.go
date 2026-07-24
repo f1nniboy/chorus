@@ -79,6 +79,7 @@ func (c *lyricsController) TrackChanged(track mpris.Track, pos time.Duration) {
 
 func (c *lyricsController) UpdatePosition(pos time.Duration) {
 	c.lastPosition = pos
+	c.view.SetPosition(pos)
 }
 
 func (c *lyricsController) Idle() {
@@ -87,6 +88,7 @@ func (c *lyricsController) Idle() {
 	if c.cancel != nil {
 		c.cancel()
 	}
+	c.view.SetIdle()
 }
 
 func (c *lyricsController) fetch(track mpris.Track) {

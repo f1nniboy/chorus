@@ -19,8 +19,7 @@ func ConfigFields(p any) []ConfigField {
 	}
 
 	var fields []ConfigField
-	for i := range rt.NumField() {
-		f := rt.Field(i)
+	for f := range rt.Fields() {
 		tag := f.Tag.Get("config")
 		if tag == "" {
 			continue
@@ -40,10 +39,8 @@ func decodeConfig(dst any, cfg map[string]any) {
 	if rv.Kind() == reflect.Pointer {
 		rv = rv.Elem()
 	}
-	rt := rv.Type()
 
-	for i := range rt.NumField() {
-		f := rt.Field(i)
+	for f, fv := range rv.Fields() {
 		tag := f.Tag.Get("config")
 		if tag == "" {
 			continue
@@ -57,7 +54,6 @@ func decodeConfig(dst any, cfg map[string]any) {
 			continue
 		}
 
-		fv := rv.Field(i)
 		switch fv.Kind() {
 		case reflect.String:
 			s, _ := raw.(string)

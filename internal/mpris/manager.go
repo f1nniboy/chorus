@@ -45,21 +45,22 @@ func (t Track) Key() string {
 	return t.Artist + t.Title + t.Album
 }
 
-type State struct {
+// one player in the roster, with its last known track
+type Entry struct {
+	Player Player
+	Track  Track
+}
+
+// the selected player's full playback state
+type Playback struct {
 	Player   Player
 	Status   gompris.PlaybackStatus
 	Track    Track
 	Position time.Duration
 }
 
-func (s State) IsIdle() bool {
-	return s.Player.BusName == "" || s.Status == gompris.PlaybackStatusStopped
-}
-
-// a single background (non-current) player's refreshed track
-type TrackUpdate struct {
-	BusName string
-	Track   Track
+func (p Playback) IsIdle() bool {
+	return p.Player.BusName == "" || p.Status == gompris.PlaybackStatusStopped
 }
 
 // the currently-selected player's identity plus its detach hook
@@ -77,38 +78,36 @@ type posState struct {
 }
 
 type Manager struct {
-	current            attachment
-	conn               *dbus.Conn
-	playersCh          chan []Player
-	stateCh            chan State
-	positionCh         chan time.Duration
-	tracksCh           chan TrackUpdate
-	players            map[string]Player
-	busByOwner         map[string]string
-	onPreferredChanged func(identity string)
-	preferred          string
-	pos                posState
-	mu                 sync.Mutex
+	current    attachment
+	conn       *dbus.Conn
+	rosterCh   chan []Entry
+	playbackCh chan Playback
+	positionCh chan time.Duration
+	players    map[string]Player
+	tracks     map[string]Track
+	busByOwner map[string]string
+	preferred  string
+	pos        posState
+	mu         sync.Mutex
 }
 
 func New(conn *dbus.Conn, preferredIdentity string) *Manager {
 	return &Manager{
 		conn:       conn,
-		playersCh:  make(chan []Player, 4),
-		stateCh:    make(chan State, 4),
-		positionCh: make(chan time.Duration, 16),
-		tracksCh:   make(chan TrackUpdate, 8),
+		rosterCh:   make(chan []Entry, 1),
+		playbackCh: make(chan Playback, 1),
+		positionCh: make(chan time.Duration, 1),
 		players:    map[string]Player{},
+		tracks:     map[string]Track{},
 		busByOwner: map[string]string{},
 		preferred:  preferredIdentity,
 		pos:        posState{rate: 1.0},
 	}
 }
 
-func (m *Manager) Players() <-chan []Player       { return m.playersCh }
-func (m *Manager) State() <-chan State            { return m.stateCh }
+func (m *Manager) Roster() <-chan []Entry         { return m.rosterCh }
+func (m *Manager) Playback() <-chan Playback      { return m.playbackCh }
 func (m *Manager) Position() <-chan time.Duration { return m.positionCh }
-func (m *Manager) Tracks() <-chan TrackUpdate     { return m.tracksCh }
 
 func (m *Manager) Start(ctx context.Context) error {
 	if err := m.conn.AddMatchSignal(
@@ -139,12 +138,7 @@ func (m *Manager) Start(ctx context.Context) error {
 }
 
 func (m *Manager) SelectPlayer(busName string) {
-	m.selectBusName(busName, nil)
-}
-
-// fires whenever SelectPlayerManually updates the remembered identity
-func (m *Manager) OnPreferredChanged(f func(identity string)) {
-	m.onPreferredChanged = f
+	m.selectBusName(busName, false)
 }
 
 func (m *Manager) SelectPlayerManually(p Player) {
@@ -152,17 +146,13 @@ func (m *Manager) SelectPlayerManually(p Player) {
 	m.preferred = p.Identity
 	m.mu.Unlock()
 
-	if m.onPreferredChanged != nil {
-		m.onPreferredChanged(p.Identity)
-	}
-
 	m.SelectPlayer(p.BusName)
 }
 
-func (m *Manager) selectBusName(busName string, known *knownState) {
+func (m *Manager) selectBusName(busName string, onlyIfEmpty bool) {
 	m.mu.Lock()
 	_, ok := m.players[busName]
-	if !ok || busName == m.current.busName {
+	if !ok || busName == m.current.busName || (onlyIfEmpty && m.current.busName != "") {
 		m.mu.Unlock()
 		return
 	}
@@ -172,17 +162,16 @@ func (m *Manager) selectBusName(busName string, known *knownState) {
 	m.current.busName = busName
 	m.mu.Unlock()
 
-	m.attachPlayer(busName, known)
+	m.attachPlayer(busName)
 }
 
 func (m *Manager) handleSignal(sig *dbus.Signal) {
 	switch sig.Name {
 	case "org.freedesktop.DBus.NameOwnerChanged":
-		if len(sig.Body) != 3 {
+		var name, oldOwner, newOwner string
+		if err := dbus.Store(sig.Body, &name, &oldOwner, &newOwner); err != nil {
 			return
 		}
-		name, _ := sig.Body[0].(string)
-		newOwner, _ := sig.Body[2].(string)
 		if !strings.HasPrefix(name, busNamePrefix) {
 			return
 		}
@@ -194,9 +183,11 @@ func (m *Manager) handleSignal(sig *dbus.Signal) {
 	case propsInterface + ".PropertiesChanged":
 		m.handlePropertiesChanged(sig)
 	case playerInterface + ".Seeked":
-		if len(sig.Body) != 1 {
+		var micros int64
+		if err := dbus.Store(sig.Body, &micros); err != nil {
 			return
 		}
+
 		m.mu.Lock()
 		busName, known := m.busByOwner[sig.Sender]
 		isCurrent := known && busName == m.current.busName
@@ -204,14 +195,12 @@ func (m *Manager) handleSignal(sig *dbus.Signal) {
 		if !isCurrent {
 			return
 		}
-		micros, ok := sig.Body[0].(int64)
-		if !ok {
-			return
-		}
+
 		m.mu.Lock()
 		m.pos.base = time.Duration(micros) * time.Microsecond
 		m.pos.baseAt = time.Now()
 		m.mu.Unlock()
+
 		m.emitPosition()
 	}
 }
@@ -225,6 +214,7 @@ func (m *Manager) rescanPlayers() {
 
 	m.mu.Lock()
 	m.players = map[string]Player{}
+	m.tracks = map[string]Track{}
 	m.mu.Unlock()
 
 	for _, name := range names {
@@ -263,12 +253,24 @@ func (m *Manager) playerAppeared(busName string) {
 	m.busByOwner[owner] = busName
 	m.mu.Unlock()
 
-	m.emitPlayers()
+	m.emitRoster()
 	m.autoSelect()
 
 	go func() {
-		trySend(m.tracksCh, TrackUpdate{BusName: busName, Track: m.Snapshot(busName)})
+		m.setTrack(busName, m.Snapshot(busName))
 	}()
+}
+
+func (m *Manager) setTrack(busName string, track Track) {
+	m.mu.Lock()
+	if _, ok := m.players[busName]; !ok {
+		m.mu.Unlock()
+		return
+	}
+	m.tracks[busName] = track
+	m.mu.Unlock()
+
+	m.emitRoster()
 }
 
 func (m *Manager) playerVanished(busName string) {
@@ -280,6 +282,7 @@ func (m *Manager) playerVanished(busName string) {
 		}
 	}
 	delete(m.players, busName)
+	delete(m.tracks, busName)
 	wasCurrent := m.current.busName == busName
 	if wasCurrent {
 		if m.current.cancel != nil {
@@ -291,10 +294,14 @@ func (m *Manager) playerVanished(busName string) {
 
 	m.conn.RemoveMatchSignal(propsMatchOpts(busName)...)
 
-	m.emitPlayers()
+	m.emitRoster()
 
 	if wasCurrent && !m.autoSelect() {
-		sendLatest(m.stateCh, State{})
+		m.mu.Lock()
+		if m.current.busName == "" {
+			sendLatest(m.playbackCh, Playback{})
+		}
+		m.mu.Unlock()
 	}
 }
 
@@ -311,60 +318,55 @@ func (m *Manager) autoSelect() bool {
 	})
 	m.mu.Unlock()
 
-	if preferred != "" {
-		for _, p := range players {
-			if p.Identity == preferred {
-				m.SelectPlayer(p.BusName)
-				return true
-			}
+	var (
+		best      string
+		bestScore = -1
+	)
+	for _, p := range players {
+		if !m.Snapshot(p.BusName).Valid() {
+			continue
+		}
+		status, err := gompris.NewPlayerWithConnection(p.BusName, m.conn).PlaybackStatus()
+		if err != nil {
+			status = ""
+		}
+
+		score := 0
+		if status == gompris.PlaybackStatusPlaying {
+			score += 2
+		}
+		if p.Identity == preferred {
+			score++
+		}
+		if score > bestScore {
+			best, bestScore = p.BusName, score
 		}
 	}
 
-	var fallback string
-	var fallbackStatus gompris.PlaybackStatus
-	for _, p := range players {
-		name := p.BusName
-		var status gompris.PlaybackStatus
-		if s, err := m.getStringProp(name, playerInterface, "PlaybackStatus"); err == nil {
-			status = gompris.PlaybackStatus(s)
-		}
+	if best == "" {
+		return false
+	}
+	m.selectBusName(best, true)
+	return true
+}
 
-		if fallback == "" {
-			fallback = name
-			fallbackStatus = status
-		}
+// runs from several goroutines, an older snapshot could replace a newer
+// snapshot with an older one, so we have to lock
+func (m *Manager) emitRoster() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
-		if status != gompris.PlaybackStatusPlaying {
-			continue
-		}
-		track := m.Snapshot(name)
+	list := make([]Entry, 0, len(m.players))
+	for bus, p := range m.players {
+		track := m.tracks[bus]
 		if !track.Valid() {
 			continue
 		}
-		m.selectBusName(name, &knownState{status: status, track: track})
-		return true
+		list = append(list, Entry{Player: p, Track: track})
 	}
-	if fallback != "" {
-		track := m.Snapshot(fallback)
-		if track.Valid() {
-			m.selectBusName(fallback, &knownState{status: fallbackStatus, track: track})
-			return true
-		}
-	}
-	return false
-}
+	slices.SortFunc(list, func(a, b Entry) int { return strings.Compare(a.Player.Identity, b.Player.Identity) })
 
-func (m *Manager) emitPlayers() {
-	m.mu.Lock()
-	list := make([]Player, 0, len(m.players))
-	for _, p := range m.players {
-		list = append(list, p)
-	}
-	m.mu.Unlock()
-
-	slices.SortFunc(list, func(a, b Player) int { return strings.Compare(a.Identity, b.Identity) })
-
-	sendLatest(m.playersCh, list)
+	sendLatest(m.rosterCh, list)
 }
 
 func (m *Manager) getStringProp(busName, iface, prop string) (string, error) {
@@ -387,12 +389,5 @@ func sendLatest[T any](ch chan T, v T) {
 			default:
 			}
 		}
-	}
-}
-
-func trySend[T any](ch chan T, v T) {
-	select {
-	case ch <- v:
-	default:
 	}
 }

@@ -15,12 +15,12 @@ import (
 const playerRowArtSize = 40
 
 type playerRow struct {
-	box     *gtk.ListBoxRow
-	art     *gtk.Picture
-	title   *gtk.Label
-	artist  *gtk.Label
-	artURL  string
-	busName string
+	box    *gtk.ListBoxRow
+	art    *gtk.Picture
+	title  *gtk.Label
+	artist *gtk.Label
+	artURL string
+	player mpris.Player
 }
 
 type Picker struct {
@@ -28,7 +28,6 @@ type Picker struct {
 	popover   *gtk.Popover
 	listBox   *gtk.ListBox
 	resolver  *art.Resolver
-	players   map[string]mpris.Player
 	rowsByBus map[string]*playerRow
 	onSelect  func(info mpris.Player)
 	current   string
@@ -53,7 +52,6 @@ func NewPicker(resolver *art.Resolver) *Picker {
 		popover:    popover,
 		listBox:    listBox,
 		resolver:   resolver,
-		players:    map[string]mpris.Player{},
 		rowsByBus:  map[string]*playerRow{},
 	}
 
@@ -62,13 +60,9 @@ func NewPicker(resolver *art.Resolver) *Picker {
 			if row.box.Object.Native() != activated.Object.Native() {
 				continue
 			}
-			p, ok := pp.players[row.busName]
-			if !ok {
-				return
-			}
 			pp.popover.Popdown()
 			if pp.onSelect != nil {
-				pp.onSelect(p)
+				pp.onSelect(row.player)
 			}
 			return
 		}
@@ -83,19 +77,20 @@ func (pp *Picker) OnSelect(f func(info mpris.Player)) {
 	pp.onSelect = f
 }
 
-func (pp *Picker) SetPlayers(players []mpris.Player) {
-	pp.players = make(map[string]mpris.Player, len(players))
-	for _, p := range players {
-		pp.players[p.BusName] = p
+func (pp *Picker) SetRoster(entries []mpris.Entry) {
+	pp.MenuButton.SetSensitive(len(entries) > 0)
+
+	seen := make(map[string]bool, len(entries))
+	for _, e := range entries {
+		seen[e.Player.BusName] = true
+		pp.upsertRow(e)
 	}
 
 	for busName := range pp.rowsByBus {
-		if _, ok := pp.players[busName]; !ok {
+		if !seen[busName] {
 			pp.removeRow(busName)
 		}
 	}
-
-	pp.MenuButton.SetSensitive(len(players) > 0)
 }
 
 func (pp *Picker) SetCurrent(busName string) {
@@ -109,19 +104,13 @@ func (pp *Picker) SetCurrent(busName string) {
 	}
 }
 
-func (pp *Picker) SetPlayerTrack(busName string, track mpris.Track) {
-	if !track.Valid() {
-		pp.removeRow(busName)
-		return
-	}
+func (pp *Picker) upsertRow(e mpris.Entry) {
+	busName := e.Player.BusName
+	track := e.Track
 
 	row, exists := pp.rowsByBus[busName]
 	if !exists {
-		info, ok := pp.players[busName]
-		if !ok {
-			return
-		}
-		row = pp.buildRow(info)
+		row = pp.buildRow(e.Player)
 		pp.rowsByBus[busName] = row
 		if busName == pp.current {
 			row.title.AddCSSClass("current")
@@ -207,5 +196,5 @@ func (pp *Picker) buildRow(p mpris.Player) *playerRow {
 
 	pp.listBox.Append(row)
 
-	return &playerRow{box: row, art: pic, title: title, artist: artist, busName: p.BusName}
+	return &playerRow{box: row, art: pic, title: title, artist: artist, player: p}
 }

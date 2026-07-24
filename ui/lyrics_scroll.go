@@ -13,10 +13,7 @@ const (
 
 func (lv *LyricsView) updateRunway() {
 	pageSize := lv.contentScroll.VAdjustment().PageSize()
-	runway := int(pageSize/2) + 20
-	if runway < scrollRunwayMinPx {
-		runway = scrollRunwayMinPx
-	}
+	runway := max(int(pageSize/2)+20, scrollRunwayMinPx)
 	lv.contentBox.SetMarginTop(runway)
 	lv.contentBox.SetMarginBottom(runway)
 }
