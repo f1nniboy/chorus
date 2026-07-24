@@ -72,9 +72,17 @@ func NewLyricsView() *LyricsView {
 
 	adjustment.ConnectChanged(func() {
 		lv.updateRunway()
+		if !lv.blockScroll {
+			return
+		}
 		glib.IdleAdd(func() {
-			if lv.currentIdx >= 0 && lv.currentIdx < len(lv.lineEntries) {
+			switch {
+			case len(lv.lineEntries) == 0:
+				return
+			case lv.currentIdx >= 0 && lv.currentIdx < len(lv.lineEntries):
 				lv.scrollToLine(lv.currentIdx, false)
+			default:
+				lv.scrollToTop(false)
 			}
 		})
 	})

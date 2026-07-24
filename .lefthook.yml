@@ -1,0 +1,12 @@
+pre-commit:
+  commands:
+    fmt:
+      run: TERM=dumb just fmt
+      stage_fixed: true
+    lint:
+      run: just lint
+      glob: "**/*.go"
+    gen:
+      run: just gen
+      glob: "**/*.go"
+      stage_fixed: true

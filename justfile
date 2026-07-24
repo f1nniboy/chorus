@@ -12,13 +12,6 @@ run: schemas
 gen:
     go generate ./...
 
-potgen: gen
-    #!/usr/bin/env bash
-    set -euo pipefail
-    for po in data/po/*/*.po; do
-        msgmerge --update --backup=none "$po" data/po/default.pot
-    done
-
 new-lang lang: gen
     mkdir -p data/po/{{lang}}
     msginit --no-translator --input=data/po/default.pot --locale={{lang}} --output=data/po/{{lang}}/default.po

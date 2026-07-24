@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	scrollAnimDurationMS = 400
-	scrollRunwayMinPx    = 40
-	lineSpacingPx        = 20
+	scrollAnimMs      = 400
+	scrollRunwayMinPx = 40
+	lineSpacingPx     = 20
 )
 
 func (lv *LyricsView) updateRunway() {
@@ -67,7 +67,7 @@ func (lv *LyricsView) setScrollTarget(target float64, animate bool) {
 	}
 
 	from := adj.Value()
-	lv.scrollAnim = adw.NewTimedAnimation(lv.contentScroll, from, target, scrollAnimDurationMS,
+	lv.scrollAnim = adw.NewTimedAnimation(lv.contentScroll, from, target, scrollAnimMs,
 		adw.NewCallbackAnimationTarget(func(value float64) {
 			adj.SetValue(value)
 		}),
