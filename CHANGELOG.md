@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/f1nniboy/chorus/compare/v0.3.0...v0.3.1) (2026-07-24)
+
+
+### Bug fixes
+
+* **picker:** use ConnectRowActivated instead of per-row activation func ([6c94752](https://github.com/f1nniboy/chorus/commit/6c947522f161f589149e7d90856d6c3eedee90aa))
+
 ## [0.3.0](https://github.com/f1nniboy/chorus/compare/v0.2.0...v0.3.0) (2026-07-23)
 
 
