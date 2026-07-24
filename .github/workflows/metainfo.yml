@@ -1,0 +1,45 @@
+name: Update metainfo.xml releases
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .release-please-manifest.json
+
+permissions:
+  contents: write
+
+jobs:
+  metainfo:
+    if: github.head_ref == 'release-please--branches--main--components--chorus'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Extract pending version
+        id: version
+        run: |
+          version=$(jq -r '."."' .release-please-manifest.json)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Generate releases section
+        run: go run ./cmd/metainfogen -version "${{ steps.version.outputs.version }}"
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/space.f1nn.chorus.metainfo.xml
+          git commit -m "chore(metainfo): add release entry for v${{ steps.version.outputs.version }}"
+          git push origin "HEAD:${{ github.head_ref }}"
