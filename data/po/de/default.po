@@ -14,46 +14,46 @@ msgstr "Über"
 msgid "Base URL"
 msgstr "Basis-URL"
 
-#: ui/settings.go:89
+#: ui/settings.go:92
 msgid "Cache"
 msgstr "Zwischenspeicher"
 
-#: ui/picker.go:41
+#: ui/picker.go:39
 msgid "Choose player"
 msgstr "Player auswählen"
 
-#: ui/settings.go:100
+#: ui/settings.go:104
 msgid "Clear cache"
 msgstr "Zwischenspeicher leeren"
 
-#: ui/lyrics.go:132
+#: ui/lyrics.go:134
 msgid "Couldn't fetch lyrics"
 msgstr "Songtext konnte nicht abgerufen werden"
 
-#: ui/settings.go:93
+#: ui/settings.go:96
 msgid "Disk usage"
 msgstr "Speichernutzung"
 
-#: ui/lyrics.go:130
+#: ui/lyrics.go:132
 msgid "No lyrics"
 msgstr "Kein Songtext"
 
-#: ui/lyrics.go:114
+#: ui/lyrics.go:119
 msgid "Nothing playing"
 msgstr "Nichts wird wiedergegeben"
 
-#: ui/lyrics.go:114
+#: ui/lyrics.go:119
 msgid "Play something and lyrics will show up here."
 msgstr "Spiele etwas ab und der Songtext wird hier angezeigt."
 
-#: ui/settings.go:52 ui/settings.go:62
+#: ui/settings.go:55 ui/settings.go:65
 msgid "Provider"
 msgstr "Anbieter"
 
-#: ui/header.go:30 ui/settings.go:40
+#: ui/header.go:30 ui/settings.go:43
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: ui/about.go:16
+#: ui/about.go:17
 msgid "View the lyrics for your currently playing music."
 msgstr "Zeigt den Songtext für die aktuell wiedergegebene Musik."

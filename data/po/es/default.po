@@ -1,10 +1,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: chorus\n"
+"Language-Team: none\n"
+"Language: es\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: es\n"
-"Language-Team: none\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
 #: ui/header.go:31
@@ -15,7 +15,7 @@ msgstr ""
 msgid "Base URL"
 msgstr ""
 
-#: ui/settings.go:90
+#: ui/settings.go:92
 msgid "Cache"
 msgstr ""
 
@@ -23,38 +23,38 @@ msgstr ""
 msgid "Choose player"
 msgstr ""
 
-#: ui/settings.go:101
+#: ui/settings.go:104
 msgid "Clear cache"
 msgstr ""
 
-#: ui/lyrics.go:129
+#: ui/lyrics.go:134
 msgid "Couldn't fetch lyrics"
 msgstr ""
 
-#: ui/settings.go:94
+#: ui/settings.go:96
 msgid "Disk usage"
 msgstr ""
 
-#: ui/lyrics.go:127
+#: ui/lyrics.go:132
 msgid "No lyrics"
 msgstr ""
 
-#: ui/lyrics.go:111
+#: ui/lyrics.go:119
 msgid "Nothing playing"
 msgstr ""
 
-#: ui/lyrics.go:111
+#: ui/lyrics.go:119
 msgid "Play something and lyrics will show up here."
 msgstr ""
 
-#: ui/settings.go:53 ui/settings.go:63
+#: ui/settings.go:55 ui/settings.go:65
 msgid "Provider"
 msgstr ""
 
-#: ui/header.go:30 ui/settings.go:41
+#: ui/header.go:30 ui/settings.go:43
 msgid "Settings"
 msgstr ""
 
-#: ui/about.go:16
+#: ui/about.go:17
 msgid "View the lyrics for your currently playing music."
 msgstr ""
