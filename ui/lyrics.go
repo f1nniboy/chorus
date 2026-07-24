@@ -113,11 +113,8 @@ func (lv *LyricsView) SetIdle() {
 
 func (lv *LyricsView) SetLoading() {
 	lv.clearContent()
-	lv.status.SetIconName("")
-	lv.status.SetTitle("")
-	lv.status.SetDescription("")
+	lv.showStatus("", "", "")
 	lv.status.SetPaintable(adw.NewSpinnerPaintable(lv.status))
-	lv.updateVisiblePage()
 }
 
 func (lv *LyricsView) SetResult(res lyrics.Result, err error, pos time.Duration) {
@@ -146,11 +143,7 @@ func (lv *LyricsView) setLines(res lyrics.Result, pos time.Duration) {
 	}
 	lv.contentScroll.SetKineticScrolling(!synced)
 
-	lines := res.Lines
-	if !synced {
-		lines = nonBlankLines(lines)
-	}
-	lv.lines = buildDisplayLines(lines, synced)
+	lv.lines = buildDisplayLines(res.Lines, synced)
 
 	for _, dl := range lv.lines {
 		entry := lv.buildLineEntry(dl)
@@ -163,15 +156,18 @@ func (lv *LyricsView) setLines(res lyrics.Result, pos time.Duration) {
 		return
 	}
 
-	idx := 0
 	if synced {
+		idx := 0
 		if i := lv.lineIndexAt(pos); i >= 0 {
 			idx = i
 		}
+		lv.currentIdx = idx
+		applyLineStates(lv.lineEntries, idx)
+		lv.scrollToLine(idx, false)
+	} else {
+		lv.currentIdx = -1
+		lv.scrollToTop(false)
 	}
-	lv.currentIdx = idx
-	applyLineStates(lv.lineEntries, idx)
-	lv.scrollToLine(idx, false)
 	lv.updateVisiblePage()
 }
 

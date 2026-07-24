@@ -10,10 +10,10 @@ Chorus watches whatever media player is running on your system and shows synced 
 
 ## Features
 
-- Follows any MPRIS-compatible player automatically, or pick one manually
+- Follows any MPRIS-compatible player automatically, or you can pick one manually
 - Synced lyrics scroll and highlight the current line as the song plays
 - Blurred cover art as a live background (*not available for some players when using Flatpak, due to sandbox limitations*)
-- Pluggable lyrics providers, [lrcmux](https://github.com/f1nniboy/lrcmux) by default
+- Various lyrics providers, [lrcmux](https://github.com/f1nniboy/lrcmux) by default
 
 ## Recommended players
 
@@ -39,3 +39,9 @@ glib-compile-schemas data/
 go build -o chorus ./cmd/chorus
 GSETTINGS_SCHEMA_DIR=data ./chorus
 ```
+
+## Translate
+
+[![Translation status](https://hosted.weblate.org/widget/chorus/svg-badge.svg)](https://hosted.weblate.org/engage/chorus/)
+
+Chorus is translated on [Weblate](https://hosted.weblate.org/engage/chorus/). Contributions for new or existing languages are welcome.

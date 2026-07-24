@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"strings"
 	"time"
 
 	"github.com/diamondburned/gotk4/pkg/gtk/v4"
@@ -13,16 +12,6 @@ const (
 	instrumentalGapThreshold = 10 * time.Second
 	instrumentalDotCount     = 3
 )
-
-func nonBlankLines(lines []lyrics.Line) []lyrics.Line {
-	out := make([]lyrics.Line, 0, len(lines))
-	for _, l := range lines {
-		if strings.TrimSpace(l.Text) != "" {
-			out = append(out, l)
-		}
-	}
-	return out
-}
 
 func buildDisplayLines(lines []lyrics.Line, synced bool) []displayLine {
 	out := make([]displayLine, 0, len(lines))
