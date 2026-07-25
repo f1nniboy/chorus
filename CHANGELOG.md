@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.4.0](https://github.com/f1nniboy/chorus/compare/v0.3.0...v0.4.0) (2026-07-25)
+
+
+### Features
+
+* **ci:** generate new metainfo releases section on release ([9b4d43d](https://github.com/f1nniboy/chorus/commit/9b4d43dd2edbc8bad570ce5bee9c24f82fa32ae5))
+* **picker:** add fallback icon if there's no cover art ([b22991c](https://github.com/f1nniboy/chorus/commit/b22991c4a391cce5f8673b95e5c03fda51517d13))
+* **providers/lrcmux:** only request line sync level ([854d741](https://github.com/f1nniboy/chorus/commit/854d74170e5c3cbf89a3b74d344ecc19df0f25a2))
+
+
+### Bug fixes
+
+* **background:** use GTK stacks for transition between cover images, ([2597a35](https://github.com/f1nniboy/chorus/commit/2597a35a9554adedce192c79dd91a5ba4de2a279))
+* **lyrics:** don't flash first line as current before playback starts ([e9dbabd](https://github.com/f1nniboy/chorus/commit/e9dbabdd311879d2ee9388fe1e09a43074d03064))
+* **picker:** use ConnectRowActivated instead of per-row activation func ([6c94752](https://github.com/f1nniboy/chorus/commit/6c947522f161f589149e7d90856d6c3eedee90aa))
+* **ui:** clean up ([5081645](https://github.com/f1nniboy/chorus/commit/5081645bc3202bda20923c0f7bf72229e9a886c1))
+* **ui:** properly scroll on window maximize/minimize ([eaa00f5](https://github.com/f1nniboy/chorus/commit/eaa00f565ecb6b84f4d278e947c4b6b6b67b1da8))
+
+
+### Documentation
+
+* **readme:** add translation section ([5081645](https://github.com/f1nniboy/chorus/commit/5081645bc3202bda20923c0f7bf72229e9a886c1))
+
+
+### Refactors
+
+* **lyrics:** drop redundant blockScroll field ([e9dbabd](https://github.com/f1nniboy/chorus/commit/e9dbabdd311879d2ee9388fe1e09a43074d03064))
+* **lyrics:** merge line and widget state into a single type ([e9dbabd](https://github.com/f1nniboy/chorus/commit/e9dbabdd311879d2ee9388fe1e09a43074d03064))
+* **mpris:** merge player-tracking channels into ([fb6990b](https://github.com/f1nniboy/chorus/commit/fb6990bb5bbb66d3850f8efa50d063995b455a59))
+* remove preferred player, automatically pick first active ([445f63d](https://github.com/f1nniboy/chorus/commit/445f63db1a7e4f31199d8c12e03272dfbe145133))
+
 ## [0.3.0](https://github.com/f1nniboy/chorus/compare/v0.2.0...v0.3.0) (2026-07-23)
 
 
