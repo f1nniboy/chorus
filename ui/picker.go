@@ -12,10 +12,11 @@ import (
 	"github.com/f1nniboy/chorus/internal/mpris"
 )
 
-const playerRowArtSize = 40
+const rowArtSize = 40
 
 type playerRow struct {
 	box    *gtk.ListBoxRow
+	stack  *gtk.Stack
 	art    *gtk.Picture
 	title  *gtk.Label
 	artist *gtk.Label
@@ -127,6 +128,7 @@ func (pp *Picker) upsertRow(e mpris.Entry) {
 	}
 	row.artURL = track.ArtURL
 	row.art.SetPaintable(nil)
+	row.stack.SetVisibleChildName("placeholder")
 	if track.ArtURL == "" {
 		return
 	}
@@ -136,7 +138,7 @@ func (pp *Picker) upsertRow(e mpris.Entry) {
 		if err != nil || raw == nil {
 			return
 		}
-		texture, err := art.Thumbnail(raw, playerRowArtSize)
+		texture, err := art.Thumbnail(raw, rowArtSize)
 		if err != nil {
 			return
 		}
@@ -145,6 +147,7 @@ func (pp *Picker) upsertRow(e mpris.Entry) {
 				return
 			}
 			row.art.SetPaintable(texture)
+			row.stack.SetVisibleChildName("art")
 		})
 	}()
 }
@@ -162,9 +165,19 @@ func (pp *Picker) buildRow(p mpris.Player) *playerRow {
 	pic := gtk.NewPicture()
 	pic.SetContentFit(gtk.ContentFitCover)
 	pic.SetCanShrink(true)
-	pic.SetSizeRequest(playerRowArtSize, playerRowArtSize)
-	pic.SetOverflow(gtk.OverflowHidden)
-	pic.AddCSSClass("player-row-art")
+
+	placeholder := gtk.NewImage()
+	placeholder.SetFromIconName("folder-music-symbolic")
+	placeholder.SetPixelSize(rowArtSize / 2)
+	placeholder.AddCSSClass("dim-label")
+
+	stack := gtk.NewStack()
+	stack.SetSizeRequest(rowArtSize, rowArtSize)
+	stack.SetOverflow(gtk.OverflowHidden)
+	stack.AddCSSClass("player-row-art")
+	stack.AddNamed(pic, "art")
+	stack.AddNamed(placeholder, "placeholder")
+	stack.SetVisibleChildName("placeholder")
 
 	title := gtk.NewLabel(p.Identity)
 	title.SetXAlign(0)
@@ -186,7 +199,7 @@ func (pp *Picker) buildRow(p mpris.Player) *playerRow {
 	content.SetMarginBottom(8)
 	content.SetMarginStart(10)
 	content.SetMarginEnd(16)
-	content.Append(pic)
+	content.Append(stack)
 	content.Append(text)
 
 	row := gtk.NewListBoxRow()
@@ -196,5 +209,5 @@ func (pp *Picker) buildRow(p mpris.Player) *playerRow {
 
 	pp.listBox.Append(row)
 
-	return &playerRow{box: row, art: pic, title: title, artist: artist, player: p}
+	return &playerRow{box: row, stack: stack, art: pic, title: title, artist: artist, player: p}
 }
