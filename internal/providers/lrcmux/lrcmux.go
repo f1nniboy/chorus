@@ -37,6 +37,7 @@ func (p *Provider) Fetch(ctx context.Context, q lyrics.TrackQuery) (lyrics.Resul
 	query := u.Query()
 	query.Set("artist", q.Artist)
 	query.Set("title", q.Title)
+	query.Set("level", "line")
 	query.Set("format", "json")
 	if q.Album != "" {
 		query.Set("album", q.Album)
