@@ -13,30 +13,35 @@ const (
 	instrumentalDotCount     = 3
 )
 
-func buildDisplayLines(lines []lyrics.Line, synced bool) []displayLine {
-	out := make([]displayLine, 0, len(lines))
+func buildLines(res lyrics.Result) []line {
+	out := make([]line, 0, len(res.Lines))
 
-	if !synced {
-		for _, l := range lines {
-			out = append(out, displayLine{kind: kindPlainLine, text: l.Text})
+	if res.Level == lyrics.LevelNone {
+		for _, l := range res.Lines {
+			out = append(out, newLineEntry(kindPlainLine, l.Text))
 		}
 		return out
 	}
 
 	prevEnd := time.Duration(0)
-	for _, l := range lines {
+	for _, l := range res.Lines {
 		if l.Start-prevEnd >= instrumentalGapThreshold {
-			out = append(out, displayLine{kind: kindInstrumental, start: prevEnd, end: l.Start})
+			e := newLineEntry(kindInstrumental, "")
+			e.start, e.end = prevEnd, l.Start
+			out = append(out, e)
 		}
-		out = append(out, displayLine{kind: kindLyric, text: l.Text, start: l.Start, end: l.End})
+
+		e := newLineEntry(kindLyric, l.Text)
+		e.start, e.end = l.Start, l.End
+		out = append(out, e)
 		prevEnd = l.End
 	}
 
 	return out
 }
 
-func (lv *LyricsView) buildLineEntry(dl displayLine) lineEntry {
-	if dl.kind == kindInstrumental {
+func newLineEntry(kind lineKind, text string) line {
+	if kind == kindInstrumental {
 		box := gtk.NewBox(gtk.OrientationHorizontal, 10)
 		box.SetHAlign(gtk.AlignCenter)
 		box.AddCSSClass("line")
@@ -50,27 +55,27 @@ func (lv *LyricsView) buildLineEntry(dl displayLine) lineEntry {
 			box.Append(d)
 		}
 
-		return lineEntry{widget: gtk.BaseWidget(box), kind: kindInstrumental, dots: dots}
+		return line{kind: kindInstrumental, widget: gtk.BaseWidget(box), dots: dots}
 	}
 
-	label := gtk.NewLabel(dl.text)
+	label := gtk.NewLabel(text)
 	label.AddCSSClass("line")
-	if dl.kind == kindPlainLine {
+	if kind == kindPlainLine {
 		label.AddCSSClass("plain")
 	}
 	label.SetWrap(true)
 	label.SetJustify(gtk.JustifyCenter)
-	return lineEntry{widget: gtk.BaseWidget(label), kind: dl.kind}
+	return line{kind: kind, widget: gtk.BaseWidget(label)}
 }
 
-func applyLineStates(entries []lineEntry, currentIdx int) {
-	for i, e := range entries {
-		dist := i - currentIdx
+func (lv *LyricsView) applyLineStates() {
+	for i, e := range lv.lines {
+		dist := i - lv.currentIdx
 		if dist < 0 {
 			dist = -dist
 		}
 		switch {
-		case i == currentIdx:
+		case i == lv.currentIdx:
 			e.widget.AddCSSClass("current")
 			e.widget.RemoveCSSClass("near")
 		case dist == 1:
@@ -83,13 +88,24 @@ func applyLineStates(entries []lineEntry, currentIdx int) {
 	}
 }
 
-func applyInstrumentalDots(dots []*gtk.Label, dl displayLine, pos time.Duration) {
-	total := dl.end - dl.start
-	slots := time.Duration(len(dots) + 1)
-	for i, d := range dots {
-		threshold := dl.start
+func (lv *LyricsView) lineIndexAt(pos time.Duration) int {
+	idx := -1
+	for i, e := range lv.lines {
+		if e.start > pos {
+			break
+		}
+		idx = i
+	}
+	return idx
+}
+
+func applyInstrumentalDots(e line, pos time.Duration) {
+	total := e.end - e.start
+	slots := time.Duration(len(e.dots) + 1)
+	for i, d := range e.dots {
+		threshold := e.start
 		if total > 0 {
-			threshold = dl.start + total*time.Duration(i+1)/slots
+			threshold = e.start + total*time.Duration(i+1)/slots
 		}
 		if pos >= threshold {
 			d.AddCSSClass("active")
@@ -97,15 +113,4 @@ func applyInstrumentalDots(dots []*gtk.Label, dl displayLine, pos time.Duration)
 			d.RemoveCSSClass("active")
 		}
 	}
-}
-
-func (lv *LyricsView) lineIndexAt(pos time.Duration) int {
-	idx := -1
-	for i, l := range lv.lines {
-		if l.start > pos {
-			break
-		}
-		idx = i
-	}
-	return idx
 }

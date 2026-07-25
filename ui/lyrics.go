@@ -22,17 +22,12 @@ const (
 	kindPlainLine
 )
 
-type displayLine struct {
-	text  string
-	kind  lineKind
-	start time.Duration
-	end   time.Duration
-}
-
-type lineEntry struct {
+type line struct {
 	widget *gtk.Widget
 	dots   []*gtk.Label
 	kind   lineKind
+	start  time.Duration
+	end    time.Duration
 }
 
 type LyricsView struct {
@@ -42,10 +37,8 @@ type LyricsView struct {
 	scrollAnim    *adw.TimedAnimation
 	status        *adw.StatusPage
 	level         lyrics.Level
-	lines         []displayLine
-	lineEntries   []lineEntry
+	lines         []line
 	currentIdx    int
-	blockScroll   bool
 }
 
 func NewLyricsView() *LyricsView {
@@ -72,25 +65,21 @@ func NewLyricsView() *LyricsView {
 
 	adjustment.ConnectChanged(func() {
 		lv.updateRunway()
-		if !lv.blockScroll {
+		if lv.level == lyrics.LevelNone {
 			return
 		}
 		glib.IdleAdd(func() {
-			switch {
-			case len(lv.lineEntries) == 0:
+			if len(lv.lines) == 0 {
 				return
-			case lv.currentIdx >= 0 && lv.currentIdx < len(lv.lineEntries):
-				lv.scrollToLine(lv.currentIdx, false)
-			default:
-				lv.scrollToTop(false)
 			}
+			lv.scrollToLine(lv.currentIdx, false)
 		})
 	})
 
-	blockScroll := gtk.NewEventControllerScroll(gtk.EventControllerScrollBothAxes)
-	blockScroll.SetPropagationPhase(gtk.PhaseCapture)
-	blockScroll.ConnectScroll(func(_, _ float64) bool { return lv.blockScroll })
-	lv.contentScroll.AddController(blockScroll)
+	scrollController := gtk.NewEventControllerScroll(gtk.EventControllerScrollBothAxes)
+	scrollController.SetPropagationPhase(gtk.PhaseCapture)
+	scrollController.ConnectScroll(func(_, _ float64) bool { return lv.level != lyrics.LevelNone })
+	lv.contentScroll.AddController(scrollController)
 
 	stack.AddNamed(lv.contentScroll, "content")
 
@@ -99,7 +88,7 @@ func NewLyricsView() *LyricsView {
 }
 
 func (lv *LyricsView) updateVisiblePage() {
-	if len(lv.lineEntries) > 0 {
+	if len(lv.lines) > 0 {
 		lv.Stack.SetVisibleChildName("content")
 		return
 	}
@@ -115,19 +104,19 @@ func (lv *LyricsView) showStatus(icon, title, desc string) {
 }
 
 func (lv *LyricsView) SetIdle() {
-	lv.clearContent()
+	lv.clear()
 	lv.showStatus("audio-x-generic-symbolic", locale.Get("Nothing playing"), locale.Get("Play something and lyrics will show up here."))
 }
 
 func (lv *LyricsView) SetLoading() {
-	lv.clearContent()
+	lv.clear()
 	lv.showStatus("", "", "")
 	lv.status.SetPaintable(adw.NewSpinnerPaintable(lv.status))
 }
 
 func (lv *LyricsView) SetResult(res lyrics.Result, err error, pos time.Duration) {
 	if err != nil {
-		lv.clearContent()
+		lv.clear()
 		if errors.Is(err, lyrics.ErrNotFound) {
 			lv.showStatus("dialog-question-symbolic", locale.Get("No lyrics"), "")
 		} else {
@@ -139,11 +128,11 @@ func (lv *LyricsView) SetResult(res lyrics.Result, err error, pos time.Duration)
 }
 
 func (lv *LyricsView) setLines(res lyrics.Result, pos time.Duration) {
-	lv.clearContent()
+	lv.clear()
 
 	lv.level = res.Level
 	synced := lv.level != lyrics.LevelNone
-	lv.blockScroll = synced
+
 	if synced {
 		lv.contentScroll.SetPolicy(gtk.PolicyNever, gtk.PolicyExternal)
 	} else {
@@ -151,27 +140,18 @@ func (lv *LyricsView) setLines(res lyrics.Result, pos time.Duration) {
 	}
 	lv.contentScroll.SetKineticScrolling(!synced)
 
-	lv.lines = buildDisplayLines(res.Lines, synced)
-
-	for _, dl := range lv.lines {
-		entry := lv.buildLineEntry(dl)
-		lv.contentBox.Append(entry.widget)
-		lv.lineEntries = append(lv.lineEntries, entry)
+	lv.lines = buildLines(res)
+	for _, e := range lv.lines {
+		lv.contentBox.Append(e.widget)
 	}
 
-	if len(lv.lineEntries) == 0 {
+	if len(lv.lines) == 0 {
 		lv.updateVisiblePage()
 		return
 	}
 
 	if synced {
-		idx := 0
-		if i := lv.lineIndexAt(pos); i >= 0 {
-			idx = i
-		}
-		lv.currentIdx = idx
-		applyLineStates(lv.lineEntries, idx)
-		lv.scrollToLine(idx, false)
+		lv.setCurrentLine(lv.lineIndexAt(pos), false)
 	} else {
 		lv.currentIdx = -1
 		lv.scrollToTop(false)
@@ -179,11 +159,10 @@ func (lv *LyricsView) setLines(res lyrics.Result, pos time.Duration) {
 	lv.updateVisiblePage()
 }
 
-func (lv *LyricsView) clearContent() {
-	for _, e := range lv.lineEntries {
+func (lv *LyricsView) clear() {
+	for _, e := range lv.lines {
 		lv.contentBox.Remove(e.widget)
 	}
-	lv.lineEntries = nil
 	lv.lines = nil
 	lv.level = lyrics.LevelNone
 	lv.currentIdx = -1
@@ -196,19 +175,19 @@ func (lv *LyricsView) SetPosition(pos time.Duration) {
 
 	idx := lv.lineIndexAt(pos)
 
-	if idx >= 0 && idx < len(lv.lineEntries) {
-		if e := lv.lineEntries[idx]; e.kind == kindInstrumental {
-			applyInstrumentalDots(e.dots, lv.lines[idx], pos)
+	if idx >= 0 {
+		if e := lv.lines[idx]; e.kind == kindInstrumental {
+			applyInstrumentalDots(e, pos)
 		}
 	}
 
 	if idx != lv.currentIdx {
-		lv.currentIdx = idx
-		applyLineStates(lv.lineEntries, idx)
-		if idx >= 0 && idx < len(lv.lineEntries) {
-			lv.scrollToLine(idx, true)
-		} else {
-			lv.scrollToTop(true)
-		}
+		lv.setCurrentLine(idx, true)
 	}
+}
+
+func (lv *LyricsView) setCurrentLine(idx int, animate bool) {
+	lv.currentIdx = idx
+	lv.applyLineStates()
+	lv.scrollToLine(idx, animate)
 }

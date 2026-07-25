@@ -28,7 +28,7 @@ func (lv *LyricsView) scrollTarget(idx int) float64 {
 
 	y := float64(lv.contentBox.MarginTop())
 	var targetY, targetH float64
-	for i, e := range lv.lineEntries {
+	for i, e := range lv.lines {
 		if i > 0 {
 			y += lineSpacingPx
 		}
@@ -46,10 +46,13 @@ func (lv *LyricsView) scrollTarget(idx int) float64 {
 }
 
 func (lv *LyricsView) scrollToLine(idx int, animate bool) {
+	if idx < 0 {
+		lv.scrollToTop(animate)
+		return
+	}
 	lv.setScrollTarget(lv.scrollTarget(idx), animate)
 }
 
-// for when playback is before the first line, so there's no idx to scroll to
 func (lv *LyricsView) scrollToTop(animate bool) {
 	lv.setScrollTarget(lv.contentScroll.VAdjustment().Lower(), animate)
 }
