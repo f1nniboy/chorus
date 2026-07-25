@@ -6,12 +6,12 @@ window.app-window:not(.dark) {
     background: linear-gradient(160deg, #e4e4ea, #c9c9d3);
 }
 
-.cover.dim {
+.cover.tint {
     background: black;
     opacity: 0.5;
 }
 
-window.app-window:not(.dark) .cover.dim {
+window.app-window:not(.dark) .cover.tint {
     background: white;
 }
 

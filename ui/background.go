@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/diamondburned/gotk4-adwaita/pkg/adw"
 	"github.com/diamondburned/gotk4/pkg/gdk/v4"
 	"github.com/diamondburned/gotk4/pkg/glib/v2"
 	"github.com/diamondburned/gotk4/pkg/gtk/v4"
@@ -12,53 +11,67 @@ import (
 	"github.com/f1nniboy/chorus/internal/art"
 )
 
-const fadeMs = 1000
+const fadeMs = 750
 
 type Background struct {
+	layers [2]*gtk.Picture
 	*gtk.Overlay
-	back       *gtk.Picture
-	front      *gtk.Picture
-	dim        *gtk.Box
-	resolver   *art.Resolver
-	cancel     context.CancelFunc
-	fadeAnim   *adw.TimedAnimation
-	lastArtURL string
+	stack    *gtk.Stack
+	empty    *gtk.Box
+	tint     *gtk.Box
+	resolver *art.Resolver
+	cancel   context.CancelFunc
+	lastURL  string
+	next     int
+}
+
+func newBackgroundLayer() *gtk.Picture {
+	pic := gtk.NewPicture()
+	pic.SetContentFit(gtk.ContentFitCover)
+	pic.SetCanShrink(true)
+	pic.AddCSSClass("cover")
+	pic.SetHExpand(true)
+	pic.SetVExpand(true)
+	return pic
 }
 
 func NewBackground(resolver *art.Resolver) *Background {
+	b := &Background{resolver: resolver}
+	b.layers[0] = newBackgroundLayer()
+	b.layers[1] = newBackgroundLayer()
+	b.empty = gtk.NewBox(gtk.OrientationVertical, 0)
+
+	stack := gtk.NewStack()
+	stack.SetTransitionType(gtk.StackTransitionTypeCrossfade)
+	stack.SetTransitionDuration(fadeMs)
+	stack.SetHExpand(true)
+	stack.SetVExpand(true)
+	stack.AddChild(b.layers[0])
+	stack.AddChild(b.layers[1])
+	stack.AddChild(b.empty)
+	stack.SetVisibleChild(b.empty)
+	b.stack = stack
+
+	tint := gtk.NewBox(gtk.OrientationVertical, 0)
+	tint.AddCSSClass("cover")
+	tint.AddCSSClass("tint")
+	tint.SetHExpand(true)
+	tint.SetVExpand(true)
+	b.tint = tint
+
 	overlay := gtk.NewOverlay()
+	overlay.SetChild(stack)
+	overlay.AddOverlay(tint)
+	b.Overlay = overlay
 
-	newLayer := func() *gtk.Picture {
-		pic := gtk.NewPicture()
-		pic.SetContentFit(gtk.ContentFitCover)
-		pic.SetCanShrink(true)
-		pic.AddCSSClass("cover")
-		pic.SetHExpand(true)
-		pic.SetVExpand(true)
-		pic.SetOpacity(0)
-		return pic
-	}
-
-	back := newLayer()
-	front := newLayer()
-	overlay.SetChild(back)
-	overlay.AddOverlay(front)
-
-	dim := gtk.NewBox(gtk.OrientationVertical, 0)
-	dim.AddCSSClass("cover")
-	dim.AddCSSClass("dim")
-	dim.SetHExpand(true)
-	dim.SetVExpand(true)
-	overlay.AddOverlay(dim)
-
-	return &Background{Overlay: overlay, back: back, front: front, dim: dim, resolver: resolver}
+	return b
 }
 
 func (b *Background) SetArtURL(artURL string) {
-	if artURL == b.lastArtURL {
+	if artURL == b.lastURL {
 		return
 	}
-	b.lastArtURL = artURL
+	b.lastURL = artURL
 
 	if b.cancel != nil {
 		b.cancel()
@@ -66,7 +79,7 @@ func (b *Background) SetArtURL(artURL string) {
 	}
 
 	if artURL == "" {
-		b.transitionTo(nil)
+		b.stack.SetVisibleChild(b.empty)
 		return
 	}
 
@@ -91,45 +104,19 @@ func (b *Background) SetArtURL(artURL string) {
 			if ctx.Err() != nil {
 				return
 			}
-			b.transitionTo(texture)
+			if texture == nil {
+				b.stack.SetVisibleChild(b.empty)
+				return
+			}
+			b.show(texture)
 		})
 	}()
 }
 
-func (b *Background) transitionTo(texture *gdk.Texture) {
-	if b.fadeAnim != nil {
-		b.fadeAnim.Pause()
-	}
+func (b *Background) show(texture *gdk.Texture) {
+	layer := b.layers[b.next]
+	b.next = 1 - b.next
 
-	if texture == nil {
-		b.front.SetOpacity(0)
-		b.front.SetPaintable(nil)
-
-		anim := adw.NewTimedAnimation(b.back, b.back.Opacity(), 0, fadeMs,
-			adw.NewCallbackAnimationTarget(func(value float64) {
-				b.back.SetOpacity(value)
-			}),
-		)
-		anim.ConnectDone(func() { b.back.SetPaintable(nil) })
-		b.fadeAnim = anim
-		anim.Play()
-		return
-	}
-
-	from := b.front.Opacity()
-	b.front.SetPaintable(texture)
-
-	anim := adw.NewTimedAnimation(b.front, from, 1, fadeMs,
-		adw.NewCallbackAnimationTarget(func(value float64) {
-			b.front.SetOpacity(value)
-		}),
-	)
-	anim.ConnectDone(func() {
-		b.back.SetPaintable(texture)
-		b.back.SetOpacity(1)
-		b.front.SetOpacity(0)
-		b.front.SetPaintable(nil)
-	})
-	b.fadeAnim = anim
-	anim.Play()
+	layer.SetPaintable(texture)
+	b.stack.SetVisibleChild(layer)
 }
