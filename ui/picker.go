@@ -30,7 +30,7 @@ type Picker struct {
 	listBox   *gtk.ListBox
 	resolver  *art.Resolver
 	rowsByBus map[string]*playerRow
-	onSelect  func(info mpris.Player)
+	onSelect  func(busName string)
 	current   string
 }
 
@@ -63,7 +63,7 @@ func NewPicker(resolver *art.Resolver) *Picker {
 			}
 			pp.popover.Popdown()
 			if pp.onSelect != nil {
-				pp.onSelect(row.player)
+				pp.onSelect(row.player.BusName)
 			}
 			return
 		}
@@ -74,7 +74,7 @@ func NewPicker(resolver *art.Resolver) *Picker {
 
 func (pp *Picker) Popover() *gtk.Popover { return pp.popover }
 
-func (pp *Picker) OnSelect(f func(info mpris.Player)) {
+func (pp *Picker) OnSelect(f func(busName string)) {
 	pp.onSelect = f
 }
 

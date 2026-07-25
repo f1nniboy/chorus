@@ -86,12 +86,11 @@ type Manager struct {
 	players    map[string]Player
 	tracks     map[string]Track
 	busByOwner map[string]string
-	preferred  string
 	pos        posState
 	mu         sync.Mutex
 }
 
-func New(conn *dbus.Conn, preferredIdentity string) *Manager {
+func New(conn *dbus.Conn) *Manager {
 	return &Manager{
 		conn:       conn,
 		rosterCh:   make(chan []Entry, 1),
@@ -100,7 +99,6 @@ func New(conn *dbus.Conn, preferredIdentity string) *Manager {
 		players:    map[string]Player{},
 		tracks:     map[string]Track{},
 		busByOwner: map[string]string{},
-		preferred:  preferredIdentity,
 		pos:        posState{rate: 1.0},
 	}
 }
@@ -139,14 +137,6 @@ func (m *Manager) Start(ctx context.Context) error {
 
 func (m *Manager) SelectPlayer(busName string) {
 	m.selectBusName(busName, false)
-}
-
-func (m *Manager) SelectPlayerManually(p Player) {
-	m.mu.Lock()
-	m.preferred = p.Identity
-	m.mu.Unlock()
-
-	m.SelectPlayer(p.BusName)
 }
 
 func (m *Manager) selectBusName(busName string, onlyIfEmpty bool) {
@@ -219,9 +209,11 @@ func (m *Manager) rescanPlayers() {
 
 	for _, name := range names {
 		if strings.HasPrefix(name, busNamePrefix) {
-			m.playerAppeared(name)
+			m.registerPlayer(name)
 		}
 	}
+
+	m.autoSelect()
 }
 
 func propsMatchOpts(busName string) []dbus.MatchOption {
@@ -234,6 +226,11 @@ func propsMatchOpts(busName string) []dbus.MatchOption {
 }
 
 func (m *Manager) playerAppeared(busName string) {
+	m.registerPlayer(busName)
+	m.autoSelect()
+}
+
+func (m *Manager) registerPlayer(busName string) {
 	identity, _ := m.getStringProp(busName, appInterface, "Identity")
 	if identity == "" {
 		identity = strings.TrimPrefix(busName, busNamePrefix)
@@ -254,7 +251,6 @@ func (m *Manager) playerAppeared(busName string) {
 	m.mu.Unlock()
 
 	m.emitRoster()
-	m.autoSelect()
 
 	go func() {
 		m.setTrack(busName, m.Snapshot(busName))
@@ -305,48 +301,38 @@ func (m *Manager) playerVanished(busName string) {
 	}
 }
 
-// prefers the remembered identity, then whatever's playing, then any valid player
+// prefers whatever's playing, falling back to the first valid player
 func (m *Manager) autoSelect() bool {
 	m.mu.Lock()
 	if m.current.busName != "" {
 		m.mu.Unlock()
 		return false
 	}
-	preferred := m.preferred
 	players := slices.SortedFunc(maps.Values(m.players), func(a, b Player) int {
 		return strings.Compare(a.BusName, b.BusName)
 	})
 	m.mu.Unlock()
 
-	var (
-		best      string
-		bestScore = -1
-	)
+	var fallback string
 	for _, p := range players {
 		if !m.Snapshot(p.BusName).Valid() {
 			continue
 		}
-		status, err := gompris.NewPlayerWithConnection(p.BusName, m.conn).PlaybackStatus()
-		if err != nil {
-			status = ""
+		if fallback == "" {
+			fallback = p.BusName
 		}
 
-		score := 0
-		if status == gompris.PlaybackStatusPlaying {
-			score += 2
-		}
-		if p.Identity == preferred {
-			score++
-		}
-		if score > bestScore {
-			best, bestScore = p.BusName, score
+		status, err := gompris.NewPlayerWithConnection(p.BusName, m.conn).PlaybackStatus()
+		if err == nil && status == gompris.PlaybackStatusPlaying {
+			m.selectBusName(p.BusName, true)
+			return true
 		}
 	}
 
-	if best == "" {
+	if fallback == "" {
 		return false
 	}
-	m.selectBusName(best, true)
+	m.selectBusName(fallback, true)
 	return true
 }
 

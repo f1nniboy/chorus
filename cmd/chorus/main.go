@@ -81,12 +81,9 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		mgr := mpris.New(conn, cfg.LastPlayerIdentity())
+		mgr := mpris.New(conn)
 
-		win.Header.Picker.OnSelect(func(info mpris.Player) {
-			cfg.SetLastPlayerIdentity(info.Identity)
-			mgr.SelectPlayerManually(info)
-		})
+		win.Header.Picker.OnSelect(mgr.SelectPlayer)
 
 		go func() {
 			for {

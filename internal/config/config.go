@@ -26,14 +26,6 @@ func New() (*Config, error) {
 	return &Config{Settings: gio.NewSettings(meta.AppID)}, nil
 }
 
-func (c *Config) LastPlayerIdentity() string {
-	return c.String("last-player-identity")
-}
-
-func (c *Config) SetLastPlayerIdentity(identity string) {
-	c.SetString("last-player-identity", identity)
-}
-
 func (c *Config) WindowSize() (width, height int) {
 	return int(c.Int("window-width")), int(c.Int("window-height"))
 }
