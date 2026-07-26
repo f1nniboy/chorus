@@ -1,6 +1,17 @@
-# Chorus
+<p align="center">
+  <img src="data/icons/hicolor/scalable/apps/space.f1nn.chorus.svg" alt="Chorus icon" width="128">
+</p>
 
-> *View the lyrics for your currently playing music.*
+<h1 align="center">Chorus</h1>
+
+<p align="center">
+  View the lyrics for your currently playing music
+  <br><br>
+  <a href="https://github.com/f1nniboy/chorus/releases"><img src="https://img.shields.io/github/v/release/f1nniboy/chorus?color=blue" alt="Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/f1nniboy/chorus?color=blue" alt="License"></a>
+  <a href="https://matrix.to/#/#chorus:oss.zone"><img src="https://img.shields.io/matrix/chorus:oss.zone.svg?server_fqdn=matrix.oss.zone&fetchMode=summary&color=blue" alt="Matrix"></a>
+  <a href="https://hosted.weblate.org/engage/chorus/"><img src="https://hosted.weblate.org/widget/chorus/svg-badge.svg" alt="Translate"></a>
+</p>
 
 Chorus watches whatever media player is running on your system and shows synced or plain lyrics for the current track, no matter which app you're using[*](#recommended-players).
 
@@ -41,7 +52,5 @@ GSETTINGS_SCHEMA_DIR=data ./chorus
 ```
 
 ## Translate
-
-[![Translation status](https://hosted.weblate.org/widget/chorus/svg-badge.svg)](https://hosted.weblate.org/engage/chorus/)
 
 Chorus is translated on [Weblate](https://hosted.weblate.org/engage/chorus/). Contributions for new or existing languages are welcome.

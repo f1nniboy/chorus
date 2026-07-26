@@ -60,7 +60,7 @@ type Playback struct {
 }
 
 func (p Playback) IsIdle() bool {
-	return p.Player.BusName == "" || p.Status == gompris.PlaybackStatusStopped
+	return p.Player.BusName == "" || p.Status == gompris.PlaybackStatusStopped || !p.Track.Valid()
 }
 
 // the currently-selected player's identity plus its detach hook
