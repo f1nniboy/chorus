@@ -313,26 +313,30 @@ func (m *Manager) autoSelect() bool {
 	})
 	m.mu.Unlock()
 
-	var fallback string
+	if len(players) == 0 {
+		return false
+	}
+
+	var picked string
 	for _, p := range players {
 		if !m.Snapshot(p.BusName).Valid() {
 			continue
 		}
-		if fallback == "" {
-			fallback = p.BusName
+		if picked == "" {
+			picked = p.BusName
 		}
 
 		status, err := gompris.NewPlayerWithConnection(p.BusName, m.conn).PlaybackStatus()
 		if err == nil && status == gompris.PlaybackStatusPlaying {
-			m.selectBusName(p.BusName, true)
-			return true
+			picked = p.BusName
+			break
 		}
 	}
 
-	if fallback == "" {
-		return false
+	if picked == "" {
+		picked = players[0].BusName
 	}
-	m.selectBusName(fallback, true)
+	m.selectBusName(picked, true)
 	return true
 }
 
