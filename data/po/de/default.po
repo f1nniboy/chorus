@@ -18,7 +18,7 @@ msgstr "Basis-URL"
 msgid "Cache"
 msgstr "Zwischenspeicher"
 
-#: ui/picker.go:39
+#: ui/picker.go:40
 msgid "Choose player"
 msgstr "Player auswählen"
 
@@ -26,7 +26,7 @@ msgstr "Player auswählen"
 msgid "Clear cache"
 msgstr "Zwischenspeicher leeren"
 
-#: ui/lyrics.go:134
+#: ui/lyrics.go:123
 msgid "Couldn't fetch lyrics"
 msgstr "Songtext konnte nicht abgerufen werden"
 
@@ -34,15 +34,15 @@ msgstr "Songtext konnte nicht abgerufen werden"
 msgid "Disk usage"
 msgstr "Speichernutzung"
 
-#: ui/lyrics.go:132
+#: ui/lyrics.go:121
 msgid "No lyrics"
 msgstr "Kein Songtext"
 
-#: ui/lyrics.go:119
+#: ui/lyrics.go:108
 msgid "Nothing playing"
 msgstr "Nichts wird wiedergegeben"
 
-#: ui/lyrics.go:119
+#: ui/lyrics.go:108
 msgid "Play something and lyrics will show up here."
 msgstr "Spiele etwas ab und der Songtext wird hier angezeigt."
 
