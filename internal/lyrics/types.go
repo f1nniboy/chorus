@@ -21,8 +21,9 @@ type Line struct {
 }
 
 type Result struct {
-	Level Level
-	Lines []Line
+	Level        Level
+	Lines        []Line
+	Instrumental bool
 }
 
 type TrackQuery struct {

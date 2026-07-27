@@ -65,7 +65,7 @@ func (p *Provider) Fetch(ctx context.Context, q lyrics.TrackQuery) (lyrics.Resul
 	case http.StatusTooManyRequests:
 		return lyrics.Result{}, fmt.Errorf("lrcmux: rate limited (retry after %s)", resp.Header.Get("Retry-After"))
 	default:
-		body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<12))
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 256))
 		return lyrics.Result{}, fmt.Errorf("lrcmux: HTTP %d: %s", resp.StatusCode, body)
 	}
 
@@ -79,7 +79,8 @@ func (p *Provider) Fetch(ctx context.Context, q lyrics.TrackQuery) (lyrics.Resul
 
 type response struct {
 	Meta struct {
-		Level string `json:"level"`
+		Level        string `json:"level"`
+		Instrumental bool   `json:"instrumental"`
 	} `json:"meta"`
 	Lines []struct {
 		Text  string `json:"text"`
@@ -89,6 +90,10 @@ type response struct {
 }
 
 func (r response) toResult() lyrics.Result {
+	if r.Meta.Instrumental {
+		return lyrics.Result{Instrumental: true}
+	}
+
 	lines := make([]lyrics.Line, 0, len(r.Lines))
 	for _, l := range r.Lines {
 		lines = append(lines, lyrics.Line{

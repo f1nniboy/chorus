@@ -22,7 +22,7 @@ const (
 )
 
 func Background(raw []byte) (*gdk.Texture, error) {
-	img, err := decodeCapped(raw, maxBlurSize)
+	img, err := decode(raw, maxBlurSize)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,9 @@ func Background(raw []byte) (*gdk.Texture, error) {
 }
 
 func Thumbnail(raw []byte, size int) (*gdk.Texture, error) {
-	img, err := decodeCapped(raw, 1<<20)
+	// we need some headroom in case the image is not a square,
+	// e.g. YouTube thumbnails
+	img, err := decode(raw, size*4)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +56,7 @@ func centeredSquare(b image.Rectangle) image.Rectangle {
 	return image.Rect(x0, y0, x0+side, y0+side)
 }
 
-func decodeCapped(raw []byte, maxDim int) (image.Image, error) {
+func decode(raw []byte, maxDim int) (image.Image, error) {
 	img, _, err := image.Decode(bytes.NewReader(raw))
 	if err != nil {
 		return nil, fmt.Errorf("art: decode image: %w", err)

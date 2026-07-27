@@ -120,8 +120,13 @@ func (lv *LyricsView) SetResult(res lyrics.Result, err error, pos time.Duration)
 		if errors.Is(err, lyrics.ErrNotFound) {
 			lv.showStatus("dialog-question-symbolic", locale.Get("No lyrics"), "")
 		} else {
-			lv.showStatus("network-error-symbolic", locale.Get("Couldn't fetch lyrics"), err.Error())
+			lv.showStatus("dialog-error-symbolic", locale.Get("Couldn't fetch lyrics"), err.Error())
 		}
+		return
+	}
+	if res.Instrumental {
+		lv.clear()
+		lv.showStatus("folder-music-symbolic", "", "")
 		return
 	}
 	lv.setLines(res, pos)
