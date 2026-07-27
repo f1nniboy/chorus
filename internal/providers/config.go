@@ -1,81 +1,50 @@
 package providers
 
-import (
-	"reflect"
-	"strconv"
-)
+import "reflect"
 
 type ConfigField struct {
 	Default any
 	Key     string
 	Label   string
-	Type    string
+	Type    reflect.Kind
 }
 
 func ConfigFields(p any) []ConfigField {
-	rt := reflect.TypeOf(p)
-	if rt.Kind() == reflect.Pointer {
-		rt = rt.Elem()
-	}
-
 	var fields []ConfigField
-	for f := range rt.Fields() {
-		tag := f.Tag.Get("config")
-		if tag == "" {
-			continue
-		}
+	forEachField(p, func(tag string, f reflect.StructField, _ reflect.Value) {
 		fields = append(fields, ConfigField{
 			Key:     tag,
 			Label:   f.Tag.Get("label"),
-			Type:    f.Tag.Get("type"),
+			Type:    f.Type.Kind(),
 			Default: f.Tag.Get("default"),
 		})
-	}
+	})
 	return fields
 }
 
 func decodeConfig(dst any, cfg map[string]any) {
-	rv := reflect.ValueOf(dst)
-	if rv.Kind() == reflect.Pointer {
-		rv = rv.Elem()
-	}
-
-	for f, fv := range rv.Fields() {
-		tag := f.Tag.Get("config")
-		if tag == "" {
-			continue
-		}
-
+	forEachField(dst, func(tag string, f reflect.StructField, v reflect.Value) {
 		raw, ok := cfg[tag]
 		if !ok {
 			raw = f.Tag.Get("default")
 		}
-		if raw == "" {
+		if s, ok := raw.(string); ok && s != "" {
+			v.SetString(s)
+		}
+	})
+}
+
+func forEachField(p any, fn func(tag string, f reflect.StructField, v reflect.Value)) {
+	rv := reflect.ValueOf(p)
+	if rv.Kind() == reflect.Pointer {
+		rv = rv.Elem()
+	}
+
+	for f, v := range rv.Fields() {
+		tag := f.Tag.Get("config")
+		if tag == "" {
 			continue
 		}
-
-		switch fv.Kind() {
-		case reflect.String:
-			s, _ := raw.(string)
-			fv.SetString(s)
-		case reflect.Int, reflect.Int64:
-			var n int64
-			switch v := raw.(type) {
-			case float64:
-				n = int64(v)
-			case string:
-				n, _ = strconv.ParseInt(v, 10, 64)
-			}
-			fv.SetInt(n)
-		case reflect.Bool:
-			var b bool
-			switch v := raw.(type) {
-			case bool:
-				b = v
-			case string:
-				b, _ = strconv.ParseBool(v)
-			}
-			fv.SetBool(b)
-		}
+		fn(tag, f, v)
 	}
 }

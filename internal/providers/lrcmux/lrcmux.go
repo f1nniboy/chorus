@@ -18,7 +18,7 @@ import (
 type Provider struct {
 	base.Common
 
-	BaseURL string `config:"base_url" default:"https://api.lrcmux.dev" label:"Base URL" type:"string"`
+	BaseURL string `config:"base_url" default:"https://api.lrcmux.dev" label:"Base URL"`
 }
 
 func (p *Provider) ID() string   { return "lrcmux" }

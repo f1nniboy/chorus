@@ -2,8 +2,7 @@ package ui
 
 import (
 	"fmt"
-	"math"
-	"strconv"
+	"reflect"
 
 	"github.com/diamondburned/gotk4-adwaita/pkg/adw"
 	"github.com/diamondburned/gotk4/pkg/glib/v2"
@@ -25,6 +24,12 @@ type Settings struct {
 	configWidgets []gtk.Widgetter
 	providerIDs   []string
 	dirty         bool
+}
+
+// row types (EntryRow, SpinRow, SwitchRow) that support a suffix widget
+type configRow interface {
+	gtk.Widgetter
+	AddSuffix(widget gtk.Widgetter)
 }
 
 func NewSettings(cfg *config.Config, diskCache *cache.Cache, onChanged func()) *Settings {
@@ -73,17 +78,7 @@ func (s *Settings) build() {
 		}
 	}
 
-	combo.NotifyProperty("selected", func() {
-		idx := combo.Selected()
-		if int(idx) < len(s.providerIDs) {
-			s.cfg.SetProviderName(s.providerIDs[idx])
-			s.renderConfig()
-			s.dirty = true
-		}
-	})
-
 	providerGroup.Add(combo)
-
 	s.providerGroup = providerGroup
 
 	s.renderConfig()
@@ -103,7 +98,7 @@ func (s *Settings) build() {
 	clearButton.AddCSSClass("destructive-action")
 	clearButton.SetTooltipText(locale.Get("Clear cache"))
 	clearButton.SetVAlign(gtk.AlignCenter)
-	clearButton.SetSizeRequest(34, 34)
+	clearButton.SetSizeRequest(32, 32)
 	sizeRow.AddSuffix(clearButton)
 
 	clearButton.ConnectClicked(func() {
@@ -139,15 +134,27 @@ func (s *Settings) renderConfig() {
 			val = f.Default
 		}
 
-		switch f.Type {
-		case "string":
+		if f.Type == reflect.String {
 			s.addStringRow(f, val)
-		case "int":
-			s.addIntRow(f, val)
-		case "bool":
-			s.addBoolRow(f, val)
 		}
 	}
+}
+
+func (s *Settings) addConfigRow(row configRow, key string, isDefault func() bool) *gtk.Button {
+	btn := gtk.NewButton()
+	btn.SetIconName("edit-undo-symbolic")
+	btn.AddCSSClass("flat")
+	btn.SetTooltipText(locale.Get("Reset to default"))
+	btn.SetVAlign(gtk.AlignCenter)
+	btn.SetVisible(!isDefault())
+	btn.ConnectClicked(func() {
+		s.resetField(key)
+	})
+	row.AddSuffix(btn)
+
+	s.providerGroup.Add(row)
+	s.configWidgets = append(s.configWidgets, row)
+	return btn
 }
 
 func (s *Settings) addStringRow(f providers.ConfigField, val any) {
@@ -156,46 +163,15 @@ func (s *Settings) addStringRow(f providers.ConfigField, val any) {
 	if v, ok := val.(string); ok {
 		row.SetText(v)
 	}
+
+	def, _ := f.Default.(string)
+	isDefault := func() bool { return row.Text() == def }
+
+	btn := s.addConfigRow(row, f.Key, isDefault)
 	row.ConnectChanged(func() {
 		s.saveField(f.Key, row.Text())
+		btn.SetVisible(!isDefault())
 	})
-	s.providerGroup.Add(row)
-	s.configWidgets = append(s.configWidgets, row)
-}
-
-func (s *Settings) addIntRow(f providers.ConfigField, val any) {
-	row := adw.NewSpinRowWithRange(0, math.MaxInt32, 1)
-	row.SetTitle(locale.Get(f.Label))
-	var n float64
-	switch v := val.(type) {
-	case float64:
-		n = v
-	case string:
-		n, _ = strconv.ParseFloat(v, 64)
-	}
-	row.SetValue(n)
-	row.NotifyProperty("value", func() {
-		s.saveField(f.Key, row.Value())
-	})
-	s.providerGroup.Add(row)
-	s.configWidgets = append(s.configWidgets, row)
-}
-
-func (s *Settings) addBoolRow(f providers.ConfigField, val any) {
-	row := adw.NewSwitchRow()
-	row.SetTitle(locale.Get(f.Label))
-	switch v := val.(type) {
-	case bool:
-		row.SetActive(v)
-	case string:
-		b, _ := strconv.ParseBool(v)
-		row.SetActive(b)
-	}
-	row.NotifyProperty("active", func() {
-		s.saveField(f.Key, row.Active())
-	})
-	s.providerGroup.Add(row)
-	s.configWidgets = append(s.configWidgets, row)
 }
 
 func (s *Settings) saveField(key string, val any) {
@@ -207,6 +183,15 @@ func (s *Settings) saveField(key string, val any) {
 	cfg[key] = val
 	s.cfg.SetProviderConfig(providerID, cfg)
 	s.dirty = true
+}
+
+func (s *Settings) resetField(key string) {
+	providerID := s.cfg.ProviderName()
+	cfg := s.cfg.ProviderConfig(providerID)
+	delete(cfg, key)
+	s.cfg.SetProviderConfig(providerID, cfg)
+	s.dirty = true
+	s.renderConfig()
 }
 
 func (s *Settings) refreshCacheSize(row *adw.ActionRow) {

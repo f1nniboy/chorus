@@ -12,7 +12,7 @@ msgstr ""
 msgid "Base URL"
 msgstr ""
 
-#: ui/settings.go:92
+#: ui/settings.go:87
 msgid "Cache"
 msgstr ""
 
@@ -20,7 +20,7 @@ msgstr ""
 msgid "Choose player"
 msgstr ""
 
-#: ui/settings.go:104
+#: ui/settings.go:99
 msgid "Clear cache"
 msgstr ""
 
@@ -28,7 +28,7 @@ msgstr ""
 msgid "Couldn't fetch lyrics"
 msgstr ""
 
-#: ui/settings.go:96
+#: ui/settings.go:91
 msgid "Disk usage"
 msgstr ""
 
@@ -44,11 +44,15 @@ msgstr ""
 msgid "Play something and lyrics will show up here."
 msgstr ""
 
-#: ui/settings.go:55 ui/settings.go:65
+#: ui/settings.go:60 ui/settings.go:70
 msgid "Provider"
 msgstr ""
 
-#: ui/header.go:30 ui/settings.go:43
+#: ui/settings.go:147
+msgid "Reset to default"
+msgstr ""
+
+#: ui/header.go:30 ui/settings.go:48
 msgid "Settings"
 msgstr ""
 
