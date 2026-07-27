@@ -14,7 +14,7 @@ msgstr "Über"
 msgid "Base URL"
 msgstr "Basis-URL"
 
-#: ui/settings.go:92
+#: ui/settings.go:87
 msgid "Cache"
 msgstr "Zwischenspeicher"
 
@@ -22,7 +22,7 @@ msgstr "Zwischenspeicher"
 msgid "Choose player"
 msgstr "Player auswählen"
 
-#: ui/settings.go:104
+#: ui/settings.go:99
 msgid "Clear cache"
 msgstr "Zwischenspeicher leeren"
 
@@ -30,7 +30,7 @@ msgstr "Zwischenspeicher leeren"
 msgid "Couldn't fetch lyrics"
 msgstr "Songtext konnte nicht abgerufen werden"
 
-#: ui/settings.go:96
+#: ui/settings.go:91
 msgid "Disk usage"
 msgstr "Speichernutzung"
 
@@ -46,11 +46,15 @@ msgstr "Nichts wird wiedergegeben"
 msgid "Play something and lyrics will show up here."
 msgstr "Spiele etwas ab und der Songtext wird hier angezeigt."
 
-#: ui/settings.go:55 ui/settings.go:65
+#: ui/settings.go:60 ui/settings.go:70
 msgid "Provider"
 msgstr "Anbieter"
 
-#: ui/header.go:30 ui/settings.go:43
+#: ui/settings.go:147
+msgid "Reset to default"
+msgstr ""
+
+#: ui/header.go:30 ui/settings.go:48
 msgid "Settings"
 msgstr "Einstellungen"
 
