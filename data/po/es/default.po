@@ -1,66 +1,64 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: chorus\n"
-"Language: de\n"
-"MIME-Version: 1.0\n"
+"Language-Team: none\n"
+"Language: es\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-07-27 21:02+0000\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.8.dev0\n"
 
 #: ui/header.go:31
 msgid "About"
-msgstr "Über"
+msgstr ""
 
 #: internal/providers/lrcmux/lrcmux.go:21
 msgid "Base URL"
-msgstr "Basis-URL"
+msgstr ""
 
 #: ui/settings.go:87
 msgid "Cache"
-msgstr "Zwischenspeicher"
+msgstr ""
 
 #: ui/picker.go:40
 msgid "Choose player"
-msgstr "Player auswählen"
+msgstr ""
 
 #: ui/settings.go:99
 msgid "Clear cache"
-msgstr "Zwischenspeicher leeren"
+msgstr ""
 
 #: ui/lyrics.go:123
 msgid "Couldn't fetch lyrics"
-msgstr "Songtext konnte nicht abgerufen werden"
+msgstr ""
 
 #: ui/settings.go:91
 msgid "Disk usage"
-msgstr "Speichernutzung"
+msgstr ""
 
 #: ui/lyrics.go:121
 msgid "No lyrics"
-msgstr "Kein Songtext"
+msgstr ""
 
 #: ui/lyrics.go:108
 msgid "Nothing playing"
-msgstr "Nichts wird wiedergegeben"
+msgstr ""
 
 #: ui/lyrics.go:108
 msgid "Play something and lyrics will show up here."
-msgstr "Spiele etwas ab und der Songtext wird hier angezeigt."
+msgstr ""
 
 #: ui/settings.go:60 ui/settings.go:70
 msgid "Provider"
-msgstr "Anbieter"
+msgstr ""
 
 #: ui/settings.go:147
 msgid "Reset to default"
-msgstr "Zurücksetzen"
+msgstr ""
 
 #: ui/header.go:30 ui/settings.go:48
 msgid "Settings"
-msgstr "Einstellungen"
+msgstr ""
 
 #: ui/about.go:17
 msgid "View the lyrics for your currently playing music."
-msgstr "Zeigt den Songtext für die aktuell wiedergegebene Musik."
+msgstr ""
