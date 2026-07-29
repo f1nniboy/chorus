@@ -81,6 +81,7 @@ func newLineEntry(kind lineKind, text string) line {
 	}
 	label.SetWrap(true)
 	label.SetJustify(gtk.JustifyCenter)
+	label.SetHAlign(gtk.AlignCenter)
 	return line{kind: kind, widget: gtk.BaseWidget(label)}
 }
 
