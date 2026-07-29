@@ -6,4 +6,5 @@ Exec=chorus
 Icon=space.f1nn.chorus
 Terminal=false
 Categories=Audio;Music;
+Keywords=lyrics;music;audio;song;mpris;karaoke;
 StartupNotify=true
