@@ -24,7 +24,7 @@ msgstr ""
 msgid "Clear cache"
 msgstr ""
 
-#: ui/lyrics.go:140
+#: ui/lyrics.go:137
 msgid "Couldn't fetch lyrics"
 msgstr ""
 
@@ -32,15 +32,15 @@ msgstr ""
 msgid "Disk usage"
 msgstr ""
 
-#: ui/lyrics.go:138
+#: ui/lyrics.go:135
 msgid "No lyrics"
 msgstr ""
 
-#: ui/lyrics.go:125
+#: ui/lyrics.go:122
 msgid "Nothing playing"
 msgstr ""
 
-#: ui/lyrics.go:125
+#: ui/lyrics.go:122
 msgid "Play something and lyrics will show up here."
 msgstr ""
 

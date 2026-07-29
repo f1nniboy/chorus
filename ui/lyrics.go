@@ -77,12 +77,9 @@ func NewLyricsView() *LyricsView {
 	adjustment := lv.contentScroll.VAdjustment()
 
 	adjustment.ConnectChanged(func() {
-		lv.updateRunway()
-		if lv.level == lyrics.LevelNone {
-			return
-		}
 		glib.IdleAdd(func() {
-			if len(lv.lines) == 0 {
+			lv.updateRunway()
+			if lv.level == lyrics.LevelNone || len(lv.lines) == 0 {
 				return
 			}
 			lv.scrollToLine(lv.currentIdx, false)
