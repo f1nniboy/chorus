@@ -22,17 +22,22 @@
   <screenshots>
     <screenshot type="default">
       <caption>The main window</caption>
-      <image>https://raw.githubusercontent.com/f1nniboy/chorus/refs/tags/v0.3.0/data/screenshots/1.png</image>
+      <image>https://raw.githubusercontent.com/f1nniboy/chorus/refs/tags/v0.5.0/data/screenshots/1.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>The main window in light mode</caption>
+      <image>https://raw.githubusercontent.com/f1nniboy/chorus/refs/tags/v0.5.0/data/screenshots/2.png</image>
     </screenshot>
     <screenshot>
       <caption>The settings pop-up</caption>
-      <image>https://raw.githubusercontent.com/f1nniboy/chorus/refs/tags/v0.3.0/data/screenshots/2.png</image>
+      <image>https://raw.githubusercontent.com/f1nniboy/chorus/refs/tags/v0.5.0/data/screenshots/3.png</image>
     </screenshot>
   </screenshots>
   <url type="homepage">https://github.com/f1nniboy/chorus</url>
   <url type="vcs-browser">https://github.com/f1nniboy/chorus</url>
   <url type="bugtracker">https://github.com/f1nniboy/chorus/issues</url>
   <url type="translate">https://hosted.weblate.org/engage/chorus/</url>
+  <url type="contact">https://matrix.to/#/#chorus:oss.zone</url>
   <content_rating type="oars-1.1"/>
   <branding>
     <color type="primary" scheme_preference="light">#73adf7</color>
