@@ -20,8 +20,6 @@ const (
 	propsInterface  = "org.freedesktop.DBus.Properties"
 	playerInterface = "org.mpris.MediaPlayer2.Player"
 	appInterface    = "org.mpris.MediaPlayer2"
-
-	positionTickInterval = 200 * time.Millisecond
 )
 
 type Player struct {
@@ -34,6 +32,7 @@ type Track struct {
 	Artist string
 	Album  string
 	ArtURL string
+	ID     dbus.ObjectPath
 	Length time.Duration
 }
 
@@ -57,6 +56,7 @@ type Playback struct {
 	Status   gompris.PlaybackStatus
 	Track    Track
 	Position time.Duration
+	CanSeek  bool
 }
 
 func (p Playback) IsIdle() bool {
@@ -77,12 +77,18 @@ type posState struct {
 	playing bool
 }
 
+func (p posState) interpolated() time.Duration {
+	if !p.playing {
+		return p.base
+	}
+	return p.base + time.Duration(float64(time.Since(p.baseAt))*p.rate)
+}
+
 type Manager struct {
 	current    attachment
 	conn       *dbus.Conn
 	rosterCh   chan []Entry
 	playbackCh chan Playback
-	positionCh chan time.Duration
 	players    map[string]Player
 	tracks     map[string]Track
 	busByOwner map[string]string
@@ -95,7 +101,6 @@ func New(conn *dbus.Conn) *Manager {
 		conn:       conn,
 		rosterCh:   make(chan []Entry, 1),
 		playbackCh: make(chan Playback, 1),
-		positionCh: make(chan time.Duration, 1),
 		players:    map[string]Player{},
 		tracks:     map[string]Track{},
 		busByOwner: map[string]string{},
@@ -103,9 +108,14 @@ func New(conn *dbus.Conn) *Manager {
 	}
 }
 
-func (m *Manager) Roster() <-chan []Entry         { return m.rosterCh }
-func (m *Manager) Playback() <-chan Playback      { return m.playbackCh }
-func (m *Manager) Position() <-chan time.Duration { return m.positionCh }
+func (m *Manager) Roster() <-chan []Entry    { return m.rosterCh }
+func (m *Manager) Playback() <-chan Playback { return m.playbackCh }
+
+func (m *Manager) CurrentPosition() time.Duration {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.pos.interpolated()
+}
 
 func (m *Manager) Start(ctx context.Context) error {
 	if err := m.conn.AddMatchSignal(
@@ -120,17 +130,12 @@ func (m *Manager) Start(ctx context.Context) error {
 
 	m.rescanPlayers()
 
-	ticker := time.NewTicker(positionTickInterval)
-	defer ticker.Stop()
-
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 		case sig := <-sigCh:
 			m.handleSignal(sig)
-		case <-ticker.C:
-			m.tickPosition()
 		}
 	}
 }
@@ -166,9 +171,9 @@ func (m *Manager) handleSignal(sig *dbus.Signal) {
 			return
 		}
 		if newOwner == "" {
-			m.playerVanished(name)
+			m.playerRemoved(name)
 		} else {
-			m.playerAppeared(name)
+			m.playerAdded(name)
 		}
 	case propsInterface + ".PropertiesChanged":
 		m.handlePropertiesChanged(sig)
@@ -181,17 +186,11 @@ func (m *Manager) handleSignal(sig *dbus.Signal) {
 		m.mu.Lock()
 		busName, known := m.busByOwner[sig.Sender]
 		isCurrent := known && busName == m.current.busName
-		m.mu.Unlock()
-		if !isCurrent {
-			return
+		if isCurrent {
+			m.pos.base = time.Duration(micros) * time.Microsecond
+			m.pos.baseAt = time.Now()
 		}
-
-		m.mu.Lock()
-		m.pos.base = time.Duration(micros) * time.Microsecond
-		m.pos.baseAt = time.Now()
 		m.mu.Unlock()
-
-		m.emitPosition()
 	}
 }
 
@@ -223,11 +222,6 @@ func propsMatchOpts(busName string) []dbus.MatchOption {
 		dbus.WithMatchMember("PropertiesChanged"),
 		dbus.WithMatchSender(busName),
 	}
-}
-
-func (m *Manager) playerAppeared(busName string) {
-	m.registerPlayer(busName)
-	m.autoSelect()
 }
 
 func (m *Manager) registerPlayer(busName string) {
@@ -269,7 +263,12 @@ func (m *Manager) setTrack(busName string, track Track) {
 	m.emitRoster()
 }
 
-func (m *Manager) playerVanished(busName string) {
+func (m *Manager) playerAdded(busName string) {
+	m.registerPlayer(busName)
+	m.autoSelect()
+}
+
+func (m *Manager) playerRemoved(busName string) {
 	m.mu.Lock()
 	for owner, bus := range m.busByOwner {
 		if bus == busName {

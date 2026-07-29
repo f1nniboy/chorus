@@ -17,9 +17,9 @@ const contentMarginPx = 25
 type lineKind int
 
 const (
-	kindLyric lineKind = iota
-	kindInstrumental
+	kindSyncedLine lineKind = iota
 	kindPlainLine
+	kindInstrumental
 )
 
 type line struct {
@@ -31,14 +31,27 @@ type line struct {
 }
 
 type LyricsView struct {
+	lastScrollAt time.Time
 	*gtk.Stack
-	contentScroll *gtk.ScrolledWindow
-	contentBox    *gtk.Box
-	scrollAnim    *adw.TimedAnimation
-	status        *adw.StatusPage
-	level         lyrics.Level
-	lines         []line
-	currentIdx    int
+	contentScroll      *gtk.ScrolledWindow
+	contentBox         *gtk.Box
+	scrollAnim         *adw.TimedAnimation
+	status             *adw.StatusPage
+	onSeek             func(pos time.Duration)
+	level              lyrics.Level
+	lines              []line
+	currentIdx         int
+	programmaticScroll bool
+	canSeek            bool
+}
+
+func (lv *LyricsView) OnSeek(f func(pos time.Duration)) {
+	lv.onSeek = f
+}
+
+func (lv *LyricsView) seekTo(pos time.Duration) {
+	lv.lastScrollAt = time.Time{}
+	lv.onSeek(pos)
 }
 
 func NewLyricsView() *LyricsView {
@@ -76,10 +89,14 @@ func NewLyricsView() *LyricsView {
 		})
 	})
 
-	scrollController := gtk.NewEventControllerScroll(gtk.EventControllerScrollBothAxes)
-	scrollController.SetPropagationPhase(gtk.PhaseCapture)
-	scrollController.ConnectScroll(func(_, _ float64) bool { return lv.level != lyrics.LevelNone })
-	lv.contentScroll.AddController(scrollController)
+	adjustment.ConnectValueChanged(func() {
+		if !lv.programmaticScroll && lv.level != lyrics.LevelNone {
+			lv.lastScrollAt = time.Now()
+			if lv.scrollAnim != nil {
+				lv.scrollAnim.Pause()
+			}
+		}
+	})
 
 	stack.AddNamed(lv.contentScroll, "content")
 
@@ -114,7 +131,7 @@ func (lv *LyricsView) SetLoading() {
 	lv.status.SetPaintable(adw.NewSpinnerPaintable(lv.status))
 }
 
-func (lv *LyricsView) SetResult(res lyrics.Result, err error, pos time.Duration) {
+func (lv *LyricsView) SetResult(res lyrics.Result, err error, pos time.Duration, canSeek bool) {
 	if err != nil {
 		lv.clear()
 		if errors.Is(err, lyrics.ErrNotFound) {
@@ -129,13 +146,14 @@ func (lv *LyricsView) SetResult(res lyrics.Result, err error, pos time.Duration)
 		lv.showStatus("folder-music-symbolic", "", "")
 		return
 	}
-	lv.setLines(res, pos)
+	lv.setLines(res, pos, canSeek)
 }
 
-func (lv *LyricsView) setLines(res lyrics.Result, pos time.Duration) {
+func (lv *LyricsView) setLines(res lyrics.Result, pos time.Duration, canSeek bool) {
 	lv.clear()
 
 	lv.level = res.Level
+	lv.canSeek = canSeek
 	synced := lv.level != lyrics.LevelNone
 
 	if synced {
@@ -143,9 +161,9 @@ func (lv *LyricsView) setLines(res lyrics.Result, pos time.Duration) {
 	} else {
 		lv.contentScroll.SetPolicy(gtk.PolicyNever, gtk.PolicyAutomatic)
 	}
-	lv.contentScroll.SetKineticScrolling(!synced)
+	lv.contentScroll.SetKineticScrolling(true)
 
-	lv.lines = buildLines(res)
+	lv.lines = lv.buildLines(res)
 	for _, e := range lv.lines {
 		lv.contentBox.Append(e.widget)
 	}
@@ -171,6 +189,7 @@ func (lv *LyricsView) clear() {
 	lv.lines = nil
 	lv.level = lyrics.LevelNone
 	lv.currentIdx = -1
+	lv.lastScrollAt = time.Time{}
 }
 
 func (lv *LyricsView) SetPosition(pos time.Duration) {
@@ -194,5 +213,11 @@ func (lv *LyricsView) SetPosition(pos time.Duration) {
 func (lv *LyricsView) setCurrentLine(idx int, animate bool) {
 	lv.currentIdx = idx
 	lv.applyLineStates()
-	lv.scrollToLine(idx, animate)
+	if lv.shouldFollow() {
+		lv.scrollToLine(idx, animate)
+	}
+}
+
+func (lv *LyricsView) shouldFollow() bool {
+	return lv.lastScrollAt.IsZero() || time.Since(lv.lastScrollAt) >= manualScrollDuration
 }

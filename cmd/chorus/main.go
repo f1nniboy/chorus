@@ -65,25 +65,31 @@ func main() {
 		})
 		app.AddAction(aboutAction)
 
-		lc, err := newLyricsController(cfg, httpClient, ca, win.Lyrics)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		settings := ui.NewSettings(cfg, ca, lc.RebuildProvider)
-		settingsAction := gio.NewSimpleAction("settings", nil)
-		settingsAction.ConnectActivate(func(_ *glib.Variant) {
-			settings.Present(win)
-		})
-		app.AddAction(settingsAction)
-
 		conn, err := dbus.SessionBus()
 		if err != nil {
 			log.Fatal(err)
 		}
 		mgr := mpris.New(conn)
 
+		controller, err := newController(cfg, httpClient, ca, win.Lyrics, mgr)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		settings := ui.NewSettings(cfg, ca, controller.RebuildProvider)
+		settingsAction := gio.NewSimpleAction("settings", nil)
+		settingsAction.ConnectActivate(func(_ *glib.Variant) {
+			settings.Present(win)
+		})
+		app.AddAction(settingsAction)
+
 		win.Header.Picker.OnSelect(mgr.SelectPlayer)
+		win.Lyrics.OnSeek(controller.SeekTo)
+
+		win.Lyrics.AddTickCallback(func(gtk.Widgetter, gdk.FrameClocker) bool {
+			controller.UpdatePosition(mgr.CurrentPosition())
+			return true
+		})
 
 		go func() {
 			for {
@@ -98,18 +104,13 @@ func main() {
 						win.Header.Picker.SetCurrent(pb.Player.BusName)
 
 						if pb.IsIdle() {
-							lc.Idle()
+							controller.Idle()
 							win.Background.SetArtURL("")
 							return
 						}
 
 						win.Background.SetArtURL(pb.Track.ArtURL)
-						lc.TrackChanged(pb.Track, pb.Position)
-					})
-
-				case pos := <-mgr.Position():
-					glib.IdleAdd(func() {
-						lc.UpdatePosition(pos)
+						controller.ChangeTrack(pb)
 					})
 				}
 			}

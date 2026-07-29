@@ -13,7 +13,7 @@ const (
 	instrumentalDotCount     = 3
 )
 
-func buildLines(res lyrics.Result) []line {
+func (lv *LyricsView) buildLines(res lyrics.Result) []line {
 	out := make([]line, 0, len(res.Lines))
 
 	if res.Level == lyrics.LevelNone {
@@ -28,16 +28,32 @@ func buildLines(res lyrics.Result) []line {
 		if l.Start-prevEnd >= instrumentalGapThreshold {
 			e := newLineEntry(kindInstrumental, "")
 			e.start, e.end = prevEnd, l.Start
+			lv.attachClick(&e)
 			out = append(out, e)
 		}
 
-		e := newLineEntry(kindLyric, l.Text)
+		e := newLineEntry(kindSyncedLine, l.Text)
 		e.start, e.end = l.Start, l.End
+		lv.attachClick(&e)
 		out = append(out, e)
 		prevEnd = l.End
 	}
 
 	return out
+}
+
+func (lv *LyricsView) attachClick(e *line) {
+	if e.kind != kindSyncedLine || lv.onSeek == nil || !lv.canSeek {
+		return
+	}
+	click := gtk.NewGestureClick()
+	click.ConnectReleased(func(nPress int, _, _ float64) {
+		if nPress == 1 {
+			lv.seekTo(e.start)
+		}
+	})
+	e.widget.AddController(click)
+	e.widget.SetCursorFromName("pointer")
 }
 
 func newLineEntry(kind lineKind, text string) line {

@@ -29,7 +29,7 @@ window.app-window:not(.dark) .cover.tint {
 }
 
 .line.near {
-    opacity: 0.55;
+    opacity: 0.5;
     filter: blur(1px);
     transform: scale(0.9);
 }

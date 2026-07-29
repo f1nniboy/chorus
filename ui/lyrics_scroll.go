@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"time"
+
 	"github.com/diamondburned/gotk4-adwaita/pkg/adw"
 	"github.com/diamondburned/gotk4/pkg/gtk/v4"
 )
@@ -9,6 +11,9 @@ const (
 	scrollAnimMs      = 400
 	scrollRunwayMinPx = 40
 	lineSpacingPx     = 20
+
+	// how long after a manual scroll before auto-follow resumes
+	manualScrollDuration = 3 * time.Second
 )
 
 func (lv *LyricsView) updateRunway() {
@@ -65,15 +70,23 @@ func (lv *LyricsView) setScrollTarget(target float64, animate bool) {
 	}
 
 	if !animate {
-		adj.SetValue(target)
+		lv.setAdjustmentValue(adj, target)
 		return
 	}
 
 	from := adj.Value()
 	lv.scrollAnim = adw.NewTimedAnimation(lv.contentScroll, from, target, scrollAnimMs,
 		adw.NewCallbackAnimationTarget(func(value float64) {
-			adj.SetValue(value)
+			lv.setAdjustmentValue(adj, value)
 		}),
 	)
 	lv.scrollAnim.Play()
+}
+
+// flags the change as our own so the ValueChanged listener in
+// NewLyricsView doesn't mistake it for a manual scroll
+func (lv *LyricsView) setAdjustmentValue(adj *gtk.Adjustment, value float64) {
+	lv.programmaticScroll = true
+	adj.SetValue(value)
+	lv.programmaticScroll = false
 }

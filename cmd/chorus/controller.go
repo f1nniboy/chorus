@@ -19,35 +19,42 @@ import (
 
 const fetchTimeout = 30 * time.Second
 
-type lyricsController struct {
-	cfg          *config.Config
-	httpClient   *http.Client
-	diskCache    *cache.Cache
-	view         *ui.LyricsView
-	fetcher      atomic.Pointer[lyrics.Fetcher]
-	cancel       context.CancelFunc
-	fetchKey     string
-	currentTrack mpris.Track
-	lastPosition time.Duration
+type controller struct {
+	cfg        *config.Config
+	httpClient *http.Client
+	diskCache  *cache.Cache
+	view       *ui.LyricsView
+	mgr        *mpris.Manager
+	fetcher    atomic.Pointer[lyrics.Fetcher]
+	cancel     context.CancelFunc
+	fetchKey   string
+	playback   mpris.Playback
 }
 
-func newLyricsController(cfg *config.Config, httpClient *http.Client, diskCache *cache.Cache, view *ui.LyricsView) (*lyricsController, error) {
+func newController(cfg *config.Config, httpClient *http.Client, diskCache *cache.Cache, view *ui.LyricsView, mgr *mpris.Manager) (*controller, error) {
 	name := cfg.ProviderName()
 	p, err := providers.New(name, cfg.ProviderConfig(name), httpClient)
 	if err != nil {
 		return nil, err
 	}
-	c := &lyricsController{
+	c := &controller{
 		cfg:        cfg,
 		httpClient: httpClient,
 		diskCache:  diskCache,
 		view:       view,
+		mgr:        mgr,
 	}
 	c.fetcher.Store(lyrics.NewFetcher(p, diskCache))
 	return c, nil
 }
 
-func (c *lyricsController) RebuildProvider() {
+func (c *controller) SeekTo(pos time.Duration) {
+	if err := c.mgr.SeekTo(pos); err != nil {
+		slog.Warn("mpris: seek failed", "err", err)
+	}
+}
+
+func (c *controller) RebuildProvider() {
 	name := c.cfg.ProviderName()
 	cfg := c.cfg.ProviderConfig(name)
 
@@ -61,29 +68,28 @@ func (c *lyricsController) RebuildProvider() {
 
 		glib.IdleAdd(func() {
 			// a different provider may have different lyrics for the same track
-			if c.currentTrack.Key() != "" {
-				c.fetch(c.currentTrack)
+			if c.playback.Track.Key() != "" {
+				c.fetch(c.playback.Track)
 			}
 		})
 	}()
 }
 
-func (c *lyricsController) TrackChanged(track mpris.Track, pos time.Duration) {
-	if track.Key() == c.currentTrack.Key() {
-		return
+func (c *controller) ChangeTrack(pb mpris.Playback) {
+	changed := pb.Track.Key() != c.playback.Track.Key()
+	c.playback = pb
+	if changed {
+		c.fetch(pb.Track)
 	}
-	c.currentTrack = track
-	c.lastPosition = pos
-	c.fetch(track)
 }
 
-func (c *lyricsController) UpdatePosition(pos time.Duration) {
-	c.lastPosition = pos
+func (c *controller) UpdatePosition(pos time.Duration) {
+	c.playback.Position = pos
 	c.view.SetPosition(pos)
 }
 
-func (c *lyricsController) Idle() {
-	c.currentTrack = mpris.Track{}
+func (c *controller) Idle() {
+	c.playback = mpris.Playback{}
 	c.fetchKey = ""
 	if c.cancel != nil {
 		c.cancel()
@@ -91,7 +97,7 @@ func (c *lyricsController) Idle() {
 	c.view.SetIdle()
 }
 
-func (c *lyricsController) fetch(track mpris.Track) {
+func (c *controller) fetch(track mpris.Track) {
 	c.view.SetLoading()
 
 	if c.cancel != nil {
@@ -120,7 +126,7 @@ func (c *lyricsController) fetch(track mpris.Track) {
 			if key != c.fetchKey {
 				return
 			}
-			c.view.SetResult(res, err, c.lastPosition)
+			c.view.SetResult(res, err, c.playback.Position, c.playback.CanSeek)
 		})
 	}()
 }
