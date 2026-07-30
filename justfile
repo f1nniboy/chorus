@@ -32,6 +32,9 @@ flatpak-lint:
 metainfo-lint:
     appstreamcli validate data/space.f1nn.chorus.metainfo.xml
 
+desktop-lint:
+    desktop-file-validate data/space.f1nn.chorus.desktop
+
 fix: fmt
     go fix ./...
     golangci-lint run --fix ./...

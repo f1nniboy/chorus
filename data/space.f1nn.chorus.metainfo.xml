@@ -22,15 +22,15 @@
   <screenshots>
     <screenshot type="default">
       <caption>The main window</caption>
-      <image>https://raw.githubusercontent.com/f1nniboy/chorus/refs/tags/v0.5.0/data/screenshots/1.png</image>
+      <image>https://raw.githubusercontent.com/f1nniboy/chorus/57c00fe0a1775de18f0de6431f10b3a78afa21f8/data/screenshots/1.png</image>
     </screenshot>
     <screenshot>
       <caption>The main window in light mode</caption>
-      <image>https://raw.githubusercontent.com/f1nniboy/chorus/refs/tags/v0.5.0/data/screenshots/2.png</image>
+      <image>https://raw.githubusercontent.com/f1nniboy/chorus/57c00fe0a1775de18f0de6431f10b3a78afa21f8/data/screenshots/2.png</image>
     </screenshot>
     <screenshot>
       <caption>The settings pop-up</caption>
-      <image>https://raw.githubusercontent.com/f1nniboy/chorus/refs/tags/v0.5.0/data/screenshots/3.png</image>
+      <image>https://raw.githubusercontent.com/f1nniboy/chorus/57c00fe0a1775de18f0de6431f10b3a78afa21f8/data/screenshots/3.png</image>
     </screenshot>
   </screenshots>
   <url type="homepage">https://github.com/f1nniboy/chorus</url>
@@ -51,6 +51,9 @@
     <keyword>lyrics</keyword>
     <keyword>sync</keyword>
     <keyword>music</keyword>
+    <keyword>audio</keyword>
+    <keyword>song</keyword>
+    <keyword>karaoke</keyword>
   </keywords>
   <developer id="space.f1nn">
     <name translate="no">f1nniboy</name>

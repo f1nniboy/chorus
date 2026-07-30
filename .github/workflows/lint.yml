@@ -8,12 +8,14 @@ on:
       - "**.go"
       - "go.mod"
       - "go.sum"
+      - "data/*.metainfo.xml"
+      - "data/*.desktop"
 
 permissions:
   contents: read
 
 jobs:
-  lint:
+  go:
     if: ${{ !startsWith(github.head_ref, 'release-please--') && github.event.pull_request.user.login != 'weblate' }}
     runs-on: ubuntu-latest
     container:
@@ -46,3 +48,16 @@ jobs:
       - uses: golangci/golangci-lint-action@v8
         with:
           version: v2.12.2
+
+  metainfo:
+    if: ${{ !startsWith(github.head_ref, 'release-please--') && github.event.pull_request.user.login != 'weblate' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install -y appstream desktop-file-utils
+
+      - run: appstreamcli validate data/space.f1nn.chorus.metainfo.xml
+
+      - run: desktop-file-validate data/space.f1nn.chorus.desktop
