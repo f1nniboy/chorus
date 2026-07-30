@@ -29,6 +29,9 @@ flatpak-lint:
     flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest space.f1nn.chorus.yml
     flatpak run --command=flatpak-builder-lint org.flatpak.Builder repo repo
 
+metainfo-lint:
+    appstreamcli validate data/space.f1nn.chorus.metainfo.xml
+
 fix: fmt
     go fix ./...
     golangci-lint run --fix ./...

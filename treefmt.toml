@@ -6,3 +6,8 @@ includes = ["*.go"]
 [formatter.xml]
 command = "scripts/xmlfmt.sh"
 includes = ["*.xml"]
+
+[formatter.yaml]
+command = "yamlfmt"
+options = ["-formatter", "retain_line_breaks=true"]
+includes = ["*.yml"]

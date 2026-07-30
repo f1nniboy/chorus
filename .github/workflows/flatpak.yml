@@ -1,6 +1,9 @@
 name: Flatpak bundle
 
 on:
+  push:
+    branches: [main]
+  pull_request:
   release:
     types: [published]
   workflow_dispatch:
@@ -21,7 +24,6 @@ jobs:
         with:
           bundle: chorus.flatpak
           manifest-path: space.f1nn.chorus.dev.yml
-          cache-key: flatpak-builder-${{ hashFiles('go.sum', 'space.f1nn.chorus.dev.yml') }}
 
       - if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
