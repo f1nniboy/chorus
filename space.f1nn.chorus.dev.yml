@@ -19,6 +19,7 @@ build-options:
   append-path: /usr/lib/sdk/golang/bin
   env:
     GOFLAGS: -mod=vendor
+    GOCACHE: /run/ccache/go-build
 
 modules:
   - name: chorus
