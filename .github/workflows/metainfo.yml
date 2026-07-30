@@ -14,12 +14,12 @@ jobs:
     if: github.head_ref == 'release-please--branches--main--components--chorus'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-        with:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: # zizmor: ignore[artipacked]
           ref: ${{ github.head_ref }}
           fetch-depth: 0
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version-file: go.mod
           cache: true
@@ -31,7 +31,9 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Generate releases section
-        run: go run ./cmd/metainfogen -version "${{ steps.version.outputs.version }}"
+        run: go run ./cmd/metainfogen -version "${VERSION}"
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
 
       - name: Commit if changed
         run: |
@@ -41,5 +43,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/space.f1nn.chorus.metainfo.xml
-          git commit -m "chore(metainfo): add release entry for v${{ steps.version.outputs.version }}"
-          git push origin "HEAD:${{ github.head_ref }}"
+          git commit -m "chore(metainfo): add release entry for v${VERSION}"
+          git push origin "HEAD:${GITHUB_HEAD_REF}"
+        env:
+          VERSION: ${{ steps.version.outputs.version }}

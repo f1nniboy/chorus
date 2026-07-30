@@ -19,14 +19,17 @@ jobs:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
       options: --privileged
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@401fe28a8384095fc1531b9d320b292f0ee45adb # v6.7
         with:
           bundle: chorus.flatpak
           manifest-path: space.f1nn.chorus.dev.yml
 
       - if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: chorus.flatpak
+        run: gh release upload "$RELEASE_TAG" chorus.flatpak
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
