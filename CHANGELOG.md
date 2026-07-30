@@ -1,5 +1,43 @@
 # Changelog
 
+## [0.5.0](https://github.com/f1nniboy/chorus/compare/v0.4.0...v0.5.0) (2026-07-30)
+
+
+### Features
+
+* click-to-seek on synced lines ([e005f7d](https://github.com/f1nniboy/chorus/commit/e005f7d44f7a15247f7b2dfb4ba3f326d999ca42))
+* **desktop:** add search keywords ([#8](https://github.com/f1nniboy/chorus/issues/8)) ([ef7e5ac](https://github.com/f1nniboy/chorus/commit/ef7e5ac5b7c535b7d9c8378f2b446dc608a1fbb8))
+* **settings:** add reset-to-default button for config fields ([376db1a](https://github.com/f1nniboy/chorus/commit/376db1acfe839a151e90184ff90b70f460192529))
+* **ui:** show an instrumental marker for the song's outro too ([57c00fe](https://github.com/f1nniboy/chorus/commit/57c00fe0a1775de18f0de6431f10b3a78afa21f8))
+* **ui:** show status page for instrumental tracks ([8cc9e72](https://github.com/f1nniboy/chorus/commit/8cc9e7203caf2c1db9e24a7a0cd94ad46f72b4e3))
+
+
+### Bug fixes
+
+* **desktop:** add required AudioVideo category ([2720ed2](https://github.com/f1nniboy/chorus/commit/2720ed223661485671dee3e400f195bb151ce181))
+* **metainfo:** pin screenshots to commit for now ([2720ed2](https://github.com/f1nniboy/chorus/commit/2720ed223661485671dee3e400f195bb151ce181))
+* **mpris:** fall back to any player when none have a valid track ([ceda2a6](https://github.com/f1nniboy/chorus/commit/ceda2a66c5ff4d0302647e5651c57bbe9b6e486d))
+* **mpris:** ignore players with invalid tracks (e.g. no artist) ([d8a3ef5](https://github.com/f1nniboy/chorus/commit/d8a3ef5d4596c1141b9ff7991c1f9b7a7b640108))
+* **ui:** delay runway margin update to avoid a negative box allocation ([1e85c8b](https://github.com/f1nniboy/chorus/commit/1e85c8ba1d86e23cef323a83f647d6c24f9a3127))
+* **ui:** shrink lyric line hitbox to text width instead of full row ([589dcea](https://github.com/f1nniboy/chorus/commit/589dceaedf91cbea7f644da174366e1e9bc4ddc5))
+
+
+### Documentation
+
+* **README:** add proper header ([d8a3ef5](https://github.com/f1nniboy/chorus/commit/d8a3ef5d4596c1141b9ff7991c1f9b7a7b640108))
+
+
+### Refactors
+
+* **logo:** add 3D effect ([d8a3ef5](https://github.com/f1nniboy/chorus/commit/d8a3ef5d4596c1141b9ff7991c1f9b7a7b640108))
+* **providers:** derive config type from reflect.Kind ([376db1a](https://github.com/f1nniboy/chorus/commit/376db1acfe839a151e90184ff90b70f460192529))
+* replace periodic position updates with GTK AddTickCallback ([e005f7d](https://github.com/f1nniboy/chorus/commit/e005f7d44f7a15247f7b2dfb4ba3f326d999ca42)), closes [#7](https://github.com/f1nniboy/chorus/issues/7)
+
+
+### Build
+
+* **flatpak:** switch app-id to id, drop GOCACHE override ([630f1c5](https://github.com/f1nniboy/chorus/commit/630f1c5bbc67490bd876a7c61f0e3c9754858721))
+
 ## [0.4.0](https://github.com/f1nniboy/chorus/compare/v0.3.0...v0.4.0) (2026-07-25)
 
 
