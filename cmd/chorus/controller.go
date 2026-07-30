@@ -126,7 +126,7 @@ func (c *controller) fetch(track mpris.Track) {
 			if key != c.fetchKey {
 				return
 			}
-			c.view.SetResult(res, err, c.playback.Position, c.playback.CanSeek)
+			c.view.SetResult(res, err, c.playback)
 		})
 	}()
 }

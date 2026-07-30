@@ -16,24 +16,24 @@ const (
 	manualScrollDuration = 3 * time.Second
 )
 
-func (lv *LyricsView) updateRunway() {
-	pageSize := lv.contentScroll.VAdjustment().PageSize()
+func (view *LyricsView) updateRunway() {
+	pageSize := view.contentScroll.VAdjustment().PageSize()
 	runway := max(int(pageSize/2)+20, scrollRunwayMinPx)
-	lv.contentBox.SetMarginTop(runway)
-	lv.contentBox.SetMarginBottom(runway)
+	view.contentBox.SetMarginTop(runway)
+	view.contentBox.SetMarginBottom(runway)
 }
 
 // uses measure() instead of allocated bounds since it's synchronous, so this
 // works right after appending fresh widgets too, not just once they're laid out
-func (lv *LyricsView) scrollTarget(idx int) float64 {
-	width := lv.contentBox.Width()
+func (view *LyricsView) scrollTarget(idx int) float64 {
+	width := view.contentBox.Width()
 	if width <= 0 {
 		width = -1
 	}
 
-	y := float64(lv.contentBox.MarginTop())
+	y := float64(view.contentBox.MarginTop())
 	var targetY, targetH float64
-	for i, e := range lv.lines {
+	for i, e := range view.lines {
 		if i > 0 {
 			y += lineSpacingPx
 		}
@@ -43,50 +43,50 @@ func (lv *LyricsView) scrollTarget(idx int) float64 {
 		}
 		y += float64(natural)
 	}
-	total := y + float64(lv.contentBox.MarginBottom())
+	total := y + float64(view.contentBox.MarginBottom())
 
-	adj := lv.contentScroll.VAdjustment()
+	adj := view.contentScroll.VAdjustment()
 	target := targetY + targetH/2 - adj.PageSize()/2
 	return min(max(target, 0), total-adj.PageSize())
 }
 
-func (lv *LyricsView) scrollToLine(idx int, animate bool) {
+func (view *LyricsView) scrollToLine(idx int, animate bool) {
 	if idx < 0 {
-		lv.scrollToTop(animate)
+		view.scrollToTop(animate)
 		return
 	}
-	lv.setScrollTarget(lv.scrollTarget(idx), animate)
+	view.setScrollTarget(view.scrollTarget(idx), animate)
 }
 
-func (lv *LyricsView) scrollToTop(animate bool) {
-	lv.setScrollTarget(lv.contentScroll.VAdjustment().Lower(), animate)
+func (view *LyricsView) scrollToTop(animate bool) {
+	view.setScrollTarget(view.contentScroll.VAdjustment().Lower(), animate)
 }
 
-func (lv *LyricsView) setScrollTarget(target float64, animate bool) {
-	adj := lv.contentScroll.VAdjustment()
+func (view *LyricsView) setScrollTarget(target float64, animate bool) {
+	adj := view.contentScroll.VAdjustment()
 
-	if lv.scrollAnim != nil {
-		lv.scrollAnim.Pause()
+	if view.scrollAnim != nil {
+		view.scrollAnim.Pause()
 	}
 
 	if !animate {
-		lv.setAdjustmentValue(adj, target)
+		view.setAdjustmentValue(adj, target)
 		return
 	}
 
 	from := adj.Value()
-	lv.scrollAnim = adw.NewTimedAnimation(lv.contentScroll, from, target, scrollAnimMs,
+	view.scrollAnim = adw.NewTimedAnimation(view.contentScroll, from, target, scrollAnimMs,
 		adw.NewCallbackAnimationTarget(func(value float64) {
-			lv.setAdjustmentValue(adj, value)
+			view.setAdjustmentValue(adj, value)
 		}),
 	)
-	lv.scrollAnim.Play()
+	view.scrollAnim.Play()
 }
 
 // flags the change as our own so the ValueChanged listener in
 // NewLyricsView doesn't mistake it for a manual scroll
-func (lv *LyricsView) setAdjustmentValue(adj *gtk.Adjustment, value float64) {
-	lv.programmaticScroll = true
+func (view *LyricsView) setAdjustmentValue(adj *gtk.Adjustment, value float64) {
+	view.programmaticScroll = true
 	adj.SetValue(value)
-	lv.programmaticScroll = false
+	view.programmaticScroll = false
 }

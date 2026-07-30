@@ -179,7 +179,7 @@ func (pp *Picker) buildRow(p mpris.Player) *playerRow {
 	stack.AddNamed(placeholder, "placeholder")
 	stack.SetVisibleChildName("placeholder")
 
-	title := gtk.NewLabel(p.Identity)
+	title := gtk.NewLabel("")
 	title.SetXAlign(0)
 	title.SetEllipsize(pango.EllipsizeEnd)
 	title.AddCSSClass("player-row-title")

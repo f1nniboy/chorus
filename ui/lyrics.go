@@ -10,6 +10,7 @@ import (
 
 	"github.com/f1nniboy/chorus/internal/locale"
 	"github.com/f1nniboy/chorus/internal/lyrics"
+	"github.com/f1nniboy/chorus/internal/mpris"
 )
 
 const contentMarginPx = 25
@@ -45,13 +46,13 @@ type LyricsView struct {
 	canSeek            bool
 }
 
-func (lv *LyricsView) OnSeek(f func(pos time.Duration)) {
-	lv.onSeek = f
+func (view *LyricsView) OnSeek(f func(pos time.Duration)) {
+	view.onSeek = f
 }
 
-func (lv *LyricsView) seekTo(pos time.Duration) {
-	lv.lastScrollAt = time.Time{}
-	lv.onSeek(pos)
+func (view *LyricsView) seekTo(pos time.Duration) {
+	view.lastScrollAt = time.Time{}
+	view.onSeek(pos)
 }
 
 func NewLyricsView() *LyricsView {
@@ -101,120 +102,120 @@ func NewLyricsView() *LyricsView {
 	return lv
 }
 
-func (lv *LyricsView) updateVisiblePage() {
-	if len(lv.lines) > 0 {
-		lv.Stack.SetVisibleChildName("content")
+func (view *LyricsView) updateVisiblePage() {
+	if len(view.lines) > 0 {
+		view.Stack.SetVisibleChildName("content")
 		return
 	}
-	lv.Stack.SetVisibleChildName("status")
+	view.Stack.SetVisibleChildName("status")
 }
 
-func (lv *LyricsView) showStatus(icon, title, desc string) {
-	lv.status.SetPaintable(nil)
-	lv.status.SetIconName(icon)
-	lv.status.SetTitle(title)
-	lv.status.SetDescription(glib.MarkupEscapeText(desc))
-	lv.updateVisiblePage()
+func (view *LyricsView) showStatus(icon, title, desc string) {
+	view.status.SetPaintable(nil)
+	view.status.SetIconName(icon)
+	view.status.SetTitle(title)
+	view.status.SetDescription(glib.MarkupEscapeText(desc))
+	view.updateVisiblePage()
 }
 
-func (lv *LyricsView) SetIdle() {
-	lv.clear()
-	lv.showStatus("audio-x-generic-symbolic", locale.Get("Nothing playing"), locale.Get("Play something and lyrics will show up here."))
+func (view *LyricsView) SetIdle() {
+	view.clear()
+	view.showStatus("audio-x-generic-symbolic", locale.Get("Nothing playing"), locale.Get("Play something and lyrics will show up here."))
 }
 
-func (lv *LyricsView) SetLoading() {
-	lv.clear()
-	lv.showStatus("", "", "")
-	lv.status.SetPaintable(adw.NewSpinnerPaintable(lv.status))
+func (view *LyricsView) SetLoading() {
+	view.clear()
+	view.showStatus("", "", "")
+	view.status.SetPaintable(adw.NewSpinnerPaintable(view.status))
 }
 
-func (lv *LyricsView) SetResult(res lyrics.Result, err error, pos time.Duration, canSeek bool) {
+func (view *LyricsView) SetResult(res lyrics.Result, err error, pb mpris.Playback) {
 	if err != nil {
-		lv.clear()
+		view.clear()
 		if errors.Is(err, lyrics.ErrNotFound) {
-			lv.showStatus("dialog-question-symbolic", locale.Get("No lyrics"), "")
+			view.showStatus("dialog-question-symbolic", locale.Get("No lyrics"), "")
 		} else {
-			lv.showStatus("dialog-error-symbolic", locale.Get("Couldn't fetch lyrics"), err.Error())
+			view.showStatus("dialog-error-symbolic", locale.Get("Couldn't fetch lyrics"), err.Error())
 		}
 		return
 	}
 	if res.Instrumental {
-		lv.clear()
-		lv.showStatus("folder-music-symbolic", "", "")
+		view.clear()
+		view.showStatus("folder-music-symbolic", "", "")
 		return
 	}
-	lv.setLines(res, pos, canSeek)
+	view.setLines(res, pb)
 }
 
-func (lv *LyricsView) setLines(res lyrics.Result, pos time.Duration, canSeek bool) {
-	lv.clear()
+func (view *LyricsView) setLines(res lyrics.Result, pb mpris.Playback) {
+	view.clear()
 
-	lv.level = res.Level
-	lv.canSeek = canSeek
-	synced := lv.level != lyrics.LevelNone
+	view.level = res.Level
+	view.canSeek = pb.CanSeek
+	synced := view.level != lyrics.LevelNone
 
 	if synced {
-		lv.contentScroll.SetPolicy(gtk.PolicyNever, gtk.PolicyExternal)
+		view.contentScroll.SetPolicy(gtk.PolicyNever, gtk.PolicyExternal)
 	} else {
-		lv.contentScroll.SetPolicy(gtk.PolicyNever, gtk.PolicyAutomatic)
+		view.contentScroll.SetPolicy(gtk.PolicyNever, gtk.PolicyAutomatic)
 	}
-	lv.contentScroll.SetKineticScrolling(true)
+	view.contentScroll.SetKineticScrolling(true)
 
-	lv.lines = lv.buildLines(res)
-	for _, e := range lv.lines {
-		lv.contentBox.Append(e.widget)
+	view.lines = view.buildLines(res, pb.Track.Length)
+	for _, e := range view.lines {
+		view.contentBox.Append(e.widget)
 	}
 
-	if len(lv.lines) == 0 {
-		lv.updateVisiblePage()
+	if len(view.lines) == 0 {
+		view.updateVisiblePage()
 		return
 	}
 
 	if synced {
-		lv.setCurrentLine(lv.lineIndexAt(pos), false)
+		view.setCurrentLine(view.lineIndexAt(pb.Position), false)
 	} else {
-		lv.currentIdx = -1
-		lv.scrollToTop(false)
+		view.currentIdx = -1
+		view.scrollToTop(false)
 	}
-	lv.updateVisiblePage()
+	view.updateVisiblePage()
 }
 
-func (lv *LyricsView) clear() {
-	for _, e := range lv.lines {
-		lv.contentBox.Remove(e.widget)
+func (view *LyricsView) clear() {
+	for _, e := range view.lines {
+		view.contentBox.Remove(e.widget)
 	}
-	lv.lines = nil
-	lv.level = lyrics.LevelNone
-	lv.currentIdx = -1
-	lv.lastScrollAt = time.Time{}
+	view.lines = nil
+	view.level = lyrics.LevelNone
+	view.currentIdx = -1
+	view.lastScrollAt = time.Time{}
 }
 
-func (lv *LyricsView) SetPosition(pos time.Duration) {
-	if lv.level == lyrics.LevelNone {
+func (view *LyricsView) SetPosition(pos time.Duration) {
+	if view.level == lyrics.LevelNone {
 		return
 	}
 
-	idx := lv.lineIndexAt(pos)
+	idx := view.lineIndexAt(pos)
 
 	if idx >= 0 {
-		if e := lv.lines[idx]; e.kind == kindInstrumental {
+		if e := view.lines[idx]; e.kind == kindInstrumental {
 			applyInstrumentalDots(e, pos)
 		}
 	}
 
-	if idx != lv.currentIdx {
-		lv.setCurrentLine(idx, true)
+	if idx != view.currentIdx {
+		view.setCurrentLine(idx, true)
 	}
 }
 
-func (lv *LyricsView) setCurrentLine(idx int, animate bool) {
-	lv.currentIdx = idx
-	lv.applyLineStates()
-	if lv.shouldFollow() {
-		lv.scrollToLine(idx, animate)
+func (view *LyricsView) setCurrentLine(idx int, animate bool) {
+	view.currentIdx = idx
+	view.applyLineStates()
+	if view.shouldFollow() {
+		view.scrollToLine(idx, animate)
 	}
 }
 
-func (lv *LyricsView) shouldFollow() bool {
-	return lv.lastScrollAt.IsZero() || time.Since(lv.lastScrollAt) >= manualScrollDuration
+func (view *LyricsView) shouldFollow() bool {
+	return view.lastScrollAt.IsZero() || time.Since(view.lastScrollAt) >= manualScrollDuration
 }

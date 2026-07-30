@@ -35,7 +35,7 @@ func main() {
 			return err
 		}
 		if d.IsDir() {
-			if d.Name() == ".git" || path == filepath.Join(root, "cmd", "potgen") {
+			if strings.HasPrefix(d.Name(), ".") || path == filepath.Join(root, "cmd", "potgen") {
 				return filepath.SkipDir
 			}
 			return nil

@@ -13,7 +13,7 @@ const (
 	instrumentalDotCount     = 3
 )
 
-func (lv *LyricsView) buildLines(res lyrics.Result) []line {
+func (view *LyricsView) buildLines(res lyrics.Result, duration time.Duration) []line {
 	out := make([]line, 0, len(res.Lines))
 
 	if res.Level == lyrics.LevelNone {
@@ -26,30 +26,34 @@ func (lv *LyricsView) buildLines(res lyrics.Result) []line {
 	prevEnd := time.Duration(0)
 	for _, l := range res.Lines {
 		if l.Start-prevEnd >= instrumentalGapThreshold {
-			e := newLineEntry(kindInstrumental, "")
-			e.start, e.end = prevEnd, l.Start
-			lv.attachClick(&e)
-			out = append(out, e)
+			out = view.appendLine(out, kindInstrumental, "", prevEnd, l.Start)
 		}
-
-		e := newLineEntry(kindSyncedLine, l.Text)
-		e.start, e.end = l.Start, l.End
-		lv.attachClick(&e)
-		out = append(out, e)
+		out = view.appendLine(out, kindSyncedLine, l.Text, l.Start, l.End)
 		prevEnd = l.End
+	}
+
+	if duration > 0 && duration-prevEnd >= instrumentalGapThreshold {
+		out = view.appendLine(out, kindInstrumental, "", prevEnd, duration)
 	}
 
 	return out
 }
 
-func (lv *LyricsView) attachClick(e *line) {
-	if e.kind != kindSyncedLine || lv.onSeek == nil || !lv.canSeek {
+func (view *LyricsView) appendLine(out []line, kind lineKind, text string, start, end time.Duration) []line {
+	e := newLineEntry(kind, text)
+	e.start, e.end = start, end
+	view.attachClick(&e)
+	return append(out, e)
+}
+
+func (view *LyricsView) attachClick(e *line) {
+	if e.kind != kindSyncedLine || view.onSeek == nil || !view.canSeek {
 		return
 	}
 	click := gtk.NewGestureClick()
 	click.ConnectReleased(func(nPress int, _, _ float64) {
 		if nPress == 1 {
-			lv.seekTo(e.start)
+			view.seekTo(e.start)
 		}
 	})
 	e.widget.AddController(click)
@@ -85,14 +89,14 @@ func newLineEntry(kind lineKind, text string) line {
 	return line{kind: kind, widget: gtk.BaseWidget(label)}
 }
 
-func (lv *LyricsView) applyLineStates() {
-	for i, e := range lv.lines {
-		dist := i - lv.currentIdx
+func (view *LyricsView) applyLineStates() {
+	for i, e := range view.lines {
+		dist := i - view.currentIdx
 		if dist < 0 {
 			dist = -dist
 		}
 		switch {
-		case i == lv.currentIdx:
+		case i == view.currentIdx:
 			e.widget.AddCSSClass("current")
 			e.widget.RemoveCSSClass("near")
 		case dist == 1:
@@ -105,9 +109,9 @@ func (lv *LyricsView) applyLineStates() {
 	}
 }
 
-func (lv *LyricsView) lineIndexAt(pos time.Duration) int {
+func (view *LyricsView) lineIndexAt(pos time.Duration) int {
 	idx := -1
-	for i, e := range lv.lines {
+	for i, e := range view.lines {
 		if e.start > pos {
 			break
 		}
