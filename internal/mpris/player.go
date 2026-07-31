@@ -159,7 +159,6 @@ func trackFromMetadata(m gompris.Metadata) Track {
 	title, _ := m.XESAMTitle()
 	album, _ := m.XESAMAlbum()
 	artURL, _ := m.MPRISArtURL()
-	lengthMicros, _ := m.MPRISLength()
 	artists, _ := m.XESAMArtist()
 	var artist string
 	if len(artists) > 0 {
@@ -171,9 +170,22 @@ func trackFromMetadata(m gompris.Metadata) Track {
 		Artist: artist,
 		Album:  album,
 		ArtURL: artURL,
-		Length: time.Duration(lengthMicros) * time.Microsecond,
+		Length: trackLength(m),
 		ID:     trackID(m),
 	}
+}
+
+// go-mpris' MPRISLength only strictly accepts an int64, but some clients
+// (like Spotify...) send it as a uint64 instead
+func trackLength(md gompris.Metadata) time.Duration {
+	var micros int64
+	switch v := md["mpris:length"].Value().(type) {
+	case int64:
+		micros = v
+	case uint64:
+		micros = int64(v)
+	}
+	return time.Duration(micros) * time.Microsecond
 }
 
 // we can't use go-mpris' MPRISTrackID directly, because it only strictly
