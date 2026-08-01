@@ -119,7 +119,6 @@ func (m *Manager) refreshState(busName string) {
 func (m *Manager) handlePropertiesChanged(sig *dbus.Signal) {
 	m.mu.Lock()
 	busName, known := m.busByOwner[sig.Sender]
-	isCurrent := known && busName == m.current.busName
 	m.mu.Unlock()
 	if !known {
 		return
@@ -139,14 +138,18 @@ func (m *Manager) handlePropertiesChanged(sig *dbus.Signal) {
 	_, metadataChanged := changed["Metadata"]
 	_, rateChanged := changed["Rate"]
 
-	if !isCurrent {
-		if metadataChanged {
-			m.setTrack(busName, m.Snapshot(busName))
-		}
-		return
+	if metadataChanged {
+		m.setTrack(busName, m.Snapshot(busName))
 	}
 
-	if statusChanged || metadataChanged || rateChanged {
+	if statusChanged || metadataChanged {
+		m.autoSelect()
+	}
+
+	m.mu.Lock()
+	isCurrent := busName == m.current.busName
+	m.mu.Unlock()
+	if isCurrent && (statusChanged || metadataChanged || rateChanged) {
 		m.refreshState(busName)
 	}
 }

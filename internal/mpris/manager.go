@@ -2,6 +2,7 @@ package mpris
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"maps"
 	"slices"
@@ -134,29 +135,37 @@ func (m *Manager) Start(ctx context.Context) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case sig := <-sigCh:
+		case sig, ok := <-sigCh:
+			// TODO: reconnect?
+			if !ok {
+				return errors.New("mpris: signal channel closed")
+			}
 			m.handleSignal(sig)
 		}
 	}
 }
 
 func (m *Manager) SelectPlayer(busName string) {
-	m.selectBusName(busName, false)
+	m.selectBusName(busName)
 }
 
-func (m *Manager) selectBusName(busName string, onlyIfEmpty bool) {
+func (m *Manager) selectBusName(busName string) {
 	m.mu.Lock()
-	_, ok := m.players[busName]
-	if !ok || busName == m.current.busName || (onlyIfEmpty && m.current.busName != "") {
+	_, known := m.players[busName]
+	if busName == m.current.busName || (busName != "" && !known) {
 		m.mu.Unlock()
 		return
 	}
 	if m.current.cancel != nil {
 		m.current.cancel()
 	}
-	m.current.busName = busName
+	m.current = attachment{busName: busName}
 	m.mu.Unlock()
 
+	if busName == "" {
+		sendLatest(m.playbackCh, Playback{})
+		return
+	}
 	m.attachPlayer(busName)
 }
 
@@ -244,11 +253,7 @@ func (m *Manager) registerPlayer(busName string) {
 	m.busByOwner[owner] = busName
 	m.mu.Unlock()
 
-	m.emitRoster()
-
-	go func() {
-		m.setTrack(busName, m.Snapshot(busName))
-	}()
+	m.setTrack(busName, m.Snapshot(busName))
 }
 
 func (m *Manager) setTrack(busName string, track Track) {
@@ -278,65 +283,56 @@ func (m *Manager) playerRemoved(busName string) {
 	}
 	delete(m.players, busName)
 	delete(m.tracks, busName)
-	wasCurrent := m.current.busName == busName
-	if wasCurrent {
-		if m.current.cancel != nil {
-			m.current.cancel()
-		}
-		m.current = attachment{}
-	}
 	m.mu.Unlock()
 
 	m.conn.RemoveMatchSignal(propsMatchOpts(busName)...)
 
 	m.emitRoster()
-
-	if wasCurrent && !m.autoSelect() {
-		m.mu.Lock()
-		if m.current.busName == "" {
-			sendLatest(m.playbackCh, Playback{})
-		}
-		m.mu.Unlock()
-	}
+	m.autoSelect()
 }
 
-// prefers whatever's playing, falling back to the first valid player
-func (m *Manager) autoSelect() bool {
+func (m *Manager) autoSelect() {
 	m.mu.Lock()
-	if m.current.busName != "" {
-		m.mu.Unlock()
-		return false
-	}
+	current := m.current.busName
 	players := slices.SortedFunc(maps.Values(m.players), func(a, b Player) int {
 		return strings.Compare(a.BusName, b.BusName)
 	})
+	tracks := maps.Clone(m.tracks)
 	m.mu.Unlock()
 
-	if len(players) == 0 {
-		return false
-	}
-
-	var picked string
+	var firstValid, playing string
+	currentValid, currentPlaying := false, false
 	for _, p := range players {
-		if !m.Snapshot(p.BusName).Valid() {
+		if !tracks[p.BusName].Valid() {
 			continue
 		}
-		if picked == "" {
-			picked = p.BusName
+		if firstValid == "" {
+			firstValid = p.BusName
 		}
-
 		status, err := gompris.NewPlayerWithConnection(p.BusName, m.conn).PlaybackStatus()
-		if err == nil && status == gompris.PlaybackStatusPlaying {
-			picked = p.BusName
-			break
+		active := err == nil && status == gompris.PlaybackStatusPlaying
+		if p.BusName == current {
+			currentValid, currentPlaying = true, active
+			// a playing current is kept no matter what, so nothing else matters
+			if active {
+				break
+			}
+		}
+		if playing == "" && active {
+			playing = p.BusName
 		}
 	}
 
-	if picked == "" {
-		picked = players[0].BusName
+	switch {
+	case currentPlaying:
+		return
+	case playing != "":
+		m.selectBusName(playing)
+	case currentValid:
+		return
+	default:
+		m.selectBusName(firstValid)
 	}
-	m.selectBusName(picked, true)
-	return true
 }
 
 // runs from several goroutines, an older snapshot could replace a newer
