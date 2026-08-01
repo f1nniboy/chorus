@@ -14,7 +14,15 @@ permissions:
 jobs:
   flatpak:
     if: ${{ !startsWith(github.head_ref, 'release-please--') && github.event.pull_request.user.login != 'weblate' }}
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-latest
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
       options: --privileged
@@ -27,9 +35,13 @@ jobs:
         with:
           bundle: chorus.flatpak
           manifest-path: space.f1nn.chorus.dev.yml
+          arch: ${{ matrix.arch }}
 
       - if: github.event_name == 'release'
-        run: gh release upload "$RELEASE_TAG" chorus.flatpak
+        run: |
+          mv chorus.flatpak "chorus-$ARCH.flatpak"
+          gh release upload "$RELEASE_TAG" "chorus-$ARCH.flatpak"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
+          ARCH: ${{ matrix.arch }}
