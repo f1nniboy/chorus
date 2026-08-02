@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.5.1](https://github.com/f1nniboy/chorus/compare/v0.5.0...v0.5.1) (2026-08-02)
+
+
+### Bug fixes
+
+* **mpris:** accept mpris:length sent as uint64 ([32fa150](https://github.com/f1nniboy/chorus/commit/32fa1508c64eb0b4417785bfce219b52567b45f8))
+* **mpris:** handle connection close gracefully ([298d944](https://github.com/f1nniboy/chorus/commit/298d944b119c8a43707a620e5373e7144f150a59))
+* **mpris:** switch to a player when it starts playing ([298d944](https://github.com/f1nniboy/chorus/commit/298d944b119c8a43707a620e5373e7144f150a59))
+* **ui:** use default window control layout ([e805d6a](https://github.com/f1nniboy/chorus/commit/e805d6a7934cae6e88e48ace16cf855eab72f9af))
+
+
+### Documentation
+
+* **readme:** add player support matrix, add weblate widget ([ee8b393](https://github.com/f1nniboy/chorus/commit/ee8b393d0c3539004440e42b0d5c48bf00b36b6e))
+
 ## [0.5.0](https://github.com/f1nniboy/chorus/compare/v0.4.0...v0.5.0) (2026-07-30)
 
 
