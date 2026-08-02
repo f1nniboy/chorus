@@ -4,7 +4,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ui/header.go:31
+#: ui/header.go:29
 msgid "About"
 msgstr ""
 
@@ -52,7 +52,7 @@ msgstr ""
 msgid "Reset to default"
 msgstr ""
 
-#: ui/header.go:30 ui/settings.go:48
+#: ui/header.go:28 ui/settings.go:48
 msgid "Settings"
 msgstr ""
 

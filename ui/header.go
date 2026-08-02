@@ -19,8 +19,6 @@ type Header struct {
 func NewHeader(artResolver *art.Resolver) *Header {
 	bar := adw.NewHeaderBar()
 	bar.SetShowTitle(false)
-	bar.SetShowStartTitleButtons(false)
-	bar.SetShowEndTitleButtons(true)
 	bar.AddCSSClass("flat")
 
 	picker := NewPicker(artResolver)
