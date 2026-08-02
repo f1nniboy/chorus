@@ -43,5 +43,6 @@ jobs:
           gh release upload "$RELEASE_TAG" "chorus-$ARCH.flatpak"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           ARCH: ${{ matrix.arch }}

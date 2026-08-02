@@ -50,7 +50,7 @@ Chorus works with any MPRIS-compatible player, but not all players implement MPR
 
 ### Flatpak
 
-Download `chorus.flatpak` from the [latest release](https://github.com/f1nniboy/chorus/releases/latest), and install it.
+Download the `.flatpak` for your architecture from the [latest release](https://github.com/f1nniboy/chorus/releases/latest), and install it.
 
 ### From source
 
