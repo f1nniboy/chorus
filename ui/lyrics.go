@@ -77,6 +77,12 @@ func NewLyricsView() *LyricsView {
 
 	adjustment := lv.contentScroll.VAdjustment()
 
+	lv.scrollAnim = adw.NewTimedAnimation(lv.contentScroll, 0, 0, scrollAnimMs,
+		adw.NewCallbackAnimationTarget(func(value float64) {
+			lv.setAdjustmentValue(adjustment, value)
+		}),
+	)
+
 	adjustment.ConnectChanged(func() {
 		glib.IdleAdd(func() {
 			lv.updateRunway()
@@ -90,9 +96,7 @@ func NewLyricsView() *LyricsView {
 	adjustment.ConnectValueChanged(func() {
 		if !lv.programmaticScroll && lv.level != lyrics.LevelNone {
 			lv.lastScrollAt = time.Now()
-			if lv.scrollAnim != nil {
-				lv.scrollAnim.Pause()
-			}
+			lv.scrollAnim.Pause()
 		}
 	})
 

@@ -3,7 +3,6 @@ package ui
 import (
 	"time"
 
-	"github.com/diamondburned/gotk4-adwaita/pkg/adw"
 	"github.com/diamondburned/gotk4/pkg/gtk/v4"
 )
 
@@ -65,21 +64,15 @@ func (view *LyricsView) scrollToTop(animate bool) {
 func (view *LyricsView) setScrollTarget(target float64, animate bool) {
 	adj := view.contentScroll.VAdjustment()
 
-	if view.scrollAnim != nil {
-		view.scrollAnim.Pause()
-	}
-
 	if !animate {
+		view.scrollAnim.Pause()
 		view.setAdjustmentValue(adj, target)
 		return
 	}
 
-	from := adj.Value()
-	view.scrollAnim = adw.NewTimedAnimation(view.contentScroll, from, target, scrollAnimMs,
-		adw.NewCallbackAnimationTarget(func(value float64) {
-			view.setAdjustmentValue(adj, value)
-		}),
-	)
+	view.scrollAnim.SetValueFrom(adj.Value())
+	view.scrollAnim.SetValueTo(target)
+	view.scrollAnim.Reset()
 	view.scrollAnim.Play()
 }
 
