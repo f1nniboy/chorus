@@ -40,6 +40,11 @@ func main() {
 	app := adw.NewApplication(meta.AppID, 0)
 
 	app.ConnectActivate(func() {
+		if win := app.ActiveWindow(); win != nil {
+			win.Present()
+			return
+		}
+
 		cfg, err := config.New()
 		if err != nil {
 			log.Fatal(err)
@@ -122,7 +127,7 @@ func main() {
 			}
 		}()
 
-		win.SetVisible(true)
+		win.Present()
 	})
 
 	os.Exit(app.Run(os.Args))
