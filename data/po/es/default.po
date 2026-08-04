@@ -6,6 +6,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"PO-Revision-Date: 2026-08-04 17:01+0000\n"
+"X-Generator: Weblate 2026.8.1.dev0\n"
 
 #: ui/header.go:31
 msgid "About"
