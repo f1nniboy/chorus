@@ -50,14 +50,17 @@ Chorus works with any MPRIS-compatible player, but not all players implement MPR
 
 ### Flatpak
 
-Download the `.flatpak` for your architecture from the [latest release](https://github.com/f1nniboy/chorus/releases/latest), and install it.
+<p>
+  <a href="https://flathub.org/apps/space.f1nn.chorus"><img src="https://flathub.org/assets/badges/flathub-badge-en.png" width="200"/></a>
+</p>
+
+Alternatively, download the `.flatpak` for your architecture from the [latest release](https://github.com/f1nniboy/chorus/releases/latest), and install it.
 
 ### From source
 
 **Requirements**:
 - GTK4
 - libadwaita
-
 
 ```sh
 git clone https://github.com/f1nniboy/chorus
