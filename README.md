@@ -5,7 +5,7 @@
 <h1 align="center">Chorus</h1>
 
 <p align="center">
-  View the lyrics for your currently playing music
+  Sing along to your music
   <br><br>
   <a href="https://github.com/f1nniboy/chorus/releases"><img src="https://img.shields.io/github/v/release/f1nniboy/chorus?color=blue" alt="Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/f1nniboy/chorus?color=blue" alt="License"></a>

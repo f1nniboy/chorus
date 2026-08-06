@@ -5,7 +5,7 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT</project_license>
   <name>Chorus</name>
-  <summary>View the lyrics for your currently playing music</summary>
+  <summary>Sing along to your music</summary>
   <description>
     <p>
       Chorus watches whatever music player is running on your system and shows
