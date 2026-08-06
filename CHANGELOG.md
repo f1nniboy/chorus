@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.2](https://github.com/f1nniboy/chorus/compare/v0.5.1...v0.5.2) (2026-08-06)
+
+
+### Bug fixes
+
+* **app:** only ever create a single window ([57013a1](https://github.com/f1nniboy/chorus/commit/57013a14c5affbd29e615baa4ea02f85f9ce9eb6))
+* shorten tagline ([563aa4d](https://github.com/f1nniboy/chorus/commit/563aa4d620be7c6f55a752052fd25a067288ae96))
+
+
+### Performance
+
+* **ui:** reuse scroll animation ([758ca72](https://github.com/f1nniboy/chorus/commit/758ca726871f03d4880e2d1acfb320dcab75289d))
+
 ## [0.5.1](https://github.com/f1nniboy/chorus/compare/v0.5.0...v0.5.1) (2026-08-02)
 
 
