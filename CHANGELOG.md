@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/f1nniboy/chorus/compare/v0.6.0...v0.6.1) (2026-08-11)
+
+
+### Bug fixes
+
+* **metainfo:** fix screenshot URLs ([adc8dc7](https://github.com/f1nniboy/chorus/commit/adc8dc75aaf4317332c6ab51fbabfcd65622fa7d))
+
 ## [0.6.0](https://github.com/f1nniboy/chorus/compare/v0.5.1...v0.6.0) (2026-08-11)
 
 
