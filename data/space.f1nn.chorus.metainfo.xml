@@ -23,15 +23,15 @@
   <screenshots>
     <screenshot type="default">
       <caption>The main window</caption>
-      <image>https://raw.githubusercontent.com/f1nniboy/chorus/refs/tags/v0.5.0/data/screenshots/1.png</image>
+      <image>https://github.com/f1nniboy/chorus/blob/3cc134e521e4ddc12ff2ecc834395075600a153e/data/screenshots/1.png</image>
     </screenshot>
     <screenshot>
       <caption>The main window in light mode</caption>
-      <image>https://raw.githubusercontent.com/f1nniboy/chorus/refs/tags/v0.5.0/data/screenshots/2.png</image>
+      <image>https://github.com/f1nniboy/chorus/blob/3cc134e521e4ddc12ff2ecc834395075600a153e/data/screenshots/2.png</image>
     </screenshot>
     <screenshot>
       <caption>The preferences pop-up</caption>
-      <image>https://raw.githubusercontent.com/f1nniboy/chorus/refs/tags/v0.5.0/data/screenshots/3.png</image>
+      <image>https://github.com/f1nniboy/chorus/blob/3cc134e521e4ddc12ff2ecc834395075600a153e/data/screenshots/3.png</image>
     </screenshot>
   </screenshots>
   <url type="homepage">https://github.com/f1nniboy/chorus</url>
