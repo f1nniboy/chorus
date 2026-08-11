@@ -69,7 +69,10 @@
     <display_length compare="ge">360</display_length>
   </requires>
   <releases>
-    <release version="0.5.1" date="2026-08-02">
+    <release version="0.6.0" date="2026-08-11">
+      <url type="details">https://github.com/f1nniboy/chorus/releases/tag/v0.6.0</url>
+    </release>
+    <release version="0.5.1" date="2026-08-03">
       <url type="details">https://github.com/f1nniboy/chorus/releases/tag/v0.5.1</url>
     </release>
     <release version="0.5.0" date="2026-07-30">
