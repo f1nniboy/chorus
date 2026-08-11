@@ -32,7 +32,7 @@ func (f *Fetcher) Get(ctx context.Context, q TrackQuery) (Result, error) {
 	}
 
 	if data, err := json.Marshal(res); err == nil {
-		_ = f.cache.Set(key, data)
+		f.cache.Set(key, data)
 	}
 	return res, nil
 }

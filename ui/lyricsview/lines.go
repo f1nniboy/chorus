@@ -1,6 +1,7 @@
-package ui
+package lyricsview
 
 import (
+	"sort"
 	"time"
 
 	"github.com/diamondburned/gotk4/pkg/gtk/v4"
@@ -13,7 +14,7 @@ const (
 	instrumentalDotCount     = 3
 )
 
-func (view *LyricsView) buildLines(res lyrics.Result, duration time.Duration) []line {
+func (view *View) buildLines(res lyrics.Result, duration time.Duration) []line {
 	out := make([]line, 0, len(res.Lines))
 
 	if res.Level == lyrics.LevelNone {
@@ -39,25 +40,25 @@ func (view *LyricsView) buildLines(res lyrics.Result, duration time.Duration) []
 	return out
 }
 
-func (view *LyricsView) appendLine(out []line, kind lineKind, text string, start, end time.Duration) []line {
-	e := newLineEntry(kind, text)
-	e.start, e.end = start, end
-	view.attachClick(&e)
-	return append(out, e)
+func (view *View) appendLine(out []line, kind lineKind, text string, start, end time.Duration) []line {
+	l := newLineEntry(kind, text)
+	l.start, l.end = start, end
+	view.attachClick(&l)
+	return append(out, l)
 }
 
-func (view *LyricsView) attachClick(e *line) {
-	if e.kind != kindSyncedLine || view.onSeek == nil || !view.canSeek {
+func (view *View) attachClick(l *line) {
+	if l.kind != kindSyncedLine || view.onSeek == nil || !view.canSeek {
 		return
 	}
 	click := gtk.NewGestureClick()
 	click.ConnectReleased(func(nPress int, _, _ float64) {
 		if nPress == 1 {
-			view.seekTo(e.start)
+			view.seekTo(l.start)
 		}
 	})
-	e.widget.AddController(click)
-	e.widget.SetCursorFromName("pointer")
+	l.widget.AddController(click)
+	l.widget.SetCursorFromName("pointer")
 }
 
 func newLineEntry(kind lineKind, text string) line {
@@ -89,44 +90,52 @@ func newLineEntry(kind lineKind, text string) line {
 	return line{kind: kind, widget: gtk.BaseWidget(label)}
 }
 
-func (view *LyricsView) applyLineStates() {
-	for i, e := range view.lines {
+func (view *View) applyLineStates() {
+	for i, l := range view.lines {
 		dist := i - view.currentIdx
 		if dist < 0 {
 			dist = -dist
 		}
 		switch {
 		case i == view.currentIdx:
-			e.widget.AddCSSClass("current")
-			e.widget.RemoveCSSClass("near")
+			l.widget.AddCSSClass("current")
+			l.widget.RemoveCSSClass("near")
 		case dist == 1:
-			e.widget.RemoveCSSClass("current")
-			e.widget.AddCSSClass("near")
+			l.widget.RemoveCSSClass("current")
+			l.widget.AddCSSClass("near")
 		default:
-			e.widget.RemoveCSSClass("current")
-			e.widget.RemoveCSSClass("near")
+			l.widget.RemoveCSSClass("current")
+			l.widget.RemoveCSSClass("near")
 		}
 	}
 }
 
-func (view *LyricsView) lineIndexAt(pos time.Duration) int {
-	idx := -1
-	for i, e := range view.lines {
-		if e.start > pos {
-			break
-		}
-		idx = i
+func (view *View) lineIndexAt(pos time.Duration) int {
+	if len(view.lines) == 0 {
+		return -1
 	}
-	return idx
+
+	// fast path
+	if cur := view.currentIdx; cur >= 0 && view.lines[cur].start <= pos {
+		if cur+1 == len(view.lines) || pos < view.lines[cur+1].start {
+			return cur
+		}
+	}
+
+	// binary search for everything else
+	i := sort.Search(len(view.lines), func(i int) bool {
+		return view.lines[i].start > pos
+	})
+	return i - 1
 }
 
-func applyInstrumentalDots(e line, pos time.Duration) {
-	total := e.end - e.start
-	slots := time.Duration(len(e.dots) + 1)
-	for i, d := range e.dots {
-		threshold := e.start
+func applyInstrumentalDots(l line, pos time.Duration) {
+	total := l.end - l.start
+	slots := time.Duration(len(l.dots) + 1)
+	for i, d := range l.dots {
+		threshold := l.start
 		if total > 0 {
-			threshold = e.start + total*time.Duration(i+1)/slots
+			threshold = l.start + total*time.Duration(i+1)/slots
 		}
 		if pos >= threshold {
 			d.AddCSSClass("active")

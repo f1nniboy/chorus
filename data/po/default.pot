@@ -4,54 +4,74 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ui/header.go:29
+#: ui/header/header.go:29
 msgid "About"
+msgstr ""
+
+#: ui/settings/settings.go:39
+msgid "Appearance"
+msgstr ""
+
+#: ui/settings/settings.go:61
+msgid "Background"
 msgstr ""
 
 #: internal/providers/lrcmux/lrcmux.go:21
 msgid "Base URL"
 msgstr ""
 
-#: ui/settings.go:87
-msgid "Cache"
+#: ui/settings/settings.go:57 ui/settings/settings.go:64
+msgid "Blur"
 msgstr ""
 
-#: ui/picker.go:40
+#: ui/picker/picker.go:40
 msgid "Choose player"
 msgstr ""
 
-#: ui/settings.go:99
-msgid "Clear cache"
+#: ui/settings/provider.go:66
+msgid "Configuration"
 msgstr ""
 
-#: ui/lyrics.go:142
+#: ui/lyricsview/view.go:151
 msgid "Couldn't fetch lyrics"
 msgstr ""
 
-#: ui/settings.go:91
-msgid "Disk usage"
-msgstr ""
-
-#: ui/lyrics.go:140
+#: ui/lyricsview/view.go:149
 msgid "No lyrics"
 msgstr ""
 
-#: ui/lyrics.go:127
+#: ui/lyricsview/view.go:136
 msgid "Nothing playing"
 msgstr ""
 
-#: ui/lyrics.go:127
+#: ui/settings/settings.go:65
+msgid "Opacity"
+msgstr ""
+
+#: ui/settings/settings.go:58
+msgid "Padding"
+msgstr ""
+
+#: ui/lyricsview/view.go:136
 msgid "Play something and lyrics will show up here."
 msgstr ""
 
-#: ui/settings.go:60 ui/settings.go:70
+#: ui/header/header.go:28 ui/settings/settings.go:36
+msgid "Preferences"
+msgstr ""
+
+#: ui/settings/settings.go:68
+msgid "Preview"
+msgstr ""
+
+#: ui/settings/provider.go:24 ui/settings/settings.go:45
 msgid "Provider"
 msgstr ""
 
-#: ui/settings.go:147
-msgid "Reset to default"
+#: ui/settings/settings.go:56
+msgid "Size"
 msgstr ""
 
-#: ui/header.go:28 ui/settings.go:48
-msgid "Settings"
+#: ui/settings/settings.go:53
+msgid "Text"
 msgstr ""

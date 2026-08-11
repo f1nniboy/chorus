@@ -15,6 +15,7 @@
     <ul>
       <li>Follows any music player automatically, or lets you pick one manually</li>
       <li>Synced lyrics scroll and highlight the current line as the song plays</li>
+      <li>Click any line to seek directly to it</li>
       <li>Blurred cover art as a live background</li>
     </ul>
   </description>
@@ -29,7 +30,7 @@
       <image>https://raw.githubusercontent.com/f1nniboy/chorus/refs/tags/v0.5.0/data/screenshots/2.png</image>
     </screenshot>
     <screenshot>
-      <caption>The settings pop-up</caption>
+      <caption>The preferences pop-up</caption>
       <image>https://raw.githubusercontent.com/f1nniboy/chorus/refs/tags/v0.5.0/data/screenshots/3.png</image>
     </screenshot>
   </screenshots>

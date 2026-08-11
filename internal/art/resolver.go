@@ -16,7 +16,7 @@ type Resolver struct {
 	cache  *cache.Cache
 }
 
-func NewResolver(client *http.Client, c *cache.Cache) *Resolver {
+func New(client *http.Client, c *cache.Cache) *Resolver {
 	return &Resolver{client: client, cache: c}
 }
 
@@ -65,6 +65,11 @@ func (r *Resolver) loadRemote(ctx context.Context, artURL string) ([]byte, error
 		return nil, err
 	}
 
-	_ = r.cache.Set(key, data)
-	return data, nil
+	normalized, err := Normalize(data)
+	if err != nil {
+		return nil, err
+	}
+
+	r.cache.Set(key, normalized)
+	return normalized, nil
 }

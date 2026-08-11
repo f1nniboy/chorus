@@ -1,4 +1,4 @@
-package ui
+package background
 
 import (
 	"context"
@@ -22,6 +22,8 @@ type Background struct {
 	resolver *art.Resolver
 	cancel   context.CancelFunc
 	lastURL  string
+	raw      []byte
+	blur     float64
 	next     int
 }
 
@@ -35,7 +37,7 @@ func newBackgroundLayer() *gtk.Picture {
 	return pic
 }
 
-func NewBackground(resolver *art.Resolver) *Background {
+func New(resolver *art.Resolver) *Background {
 	b := &Background{resolver: resolver}
 	b.layers[0] = newBackgroundLayer()
 	b.layers[1] = newBackgroundLayer()
@@ -60,6 +62,7 @@ func NewBackground(resolver *art.Resolver) *Background {
 	b.tint = tint
 
 	overlay := gtk.NewOverlay()
+	overlay.AddCSSClass("cover-backdrop")
 	overlay.SetChild(stack)
 	overlay.AddOverlay(tint)
 	b.Overlay = overlay
@@ -79,6 +82,7 @@ func (b *Background) SetArtURL(artURL string) {
 	}
 
 	if artURL == "" {
+		b.raw = nil
 		b.stack.SetVisibleChild(b.empty)
 		return
 	}
@@ -86,6 +90,7 @@ func (b *Background) SetArtURL(artURL string) {
 	ctx, cancel := context.WithCancel(context.Background())
 	b.cancel = cancel
 
+	blur := b.blur
 	go func() {
 		raw, err := b.resolver.Load(ctx, artURL)
 		if err != nil && ctx.Err() == nil {
@@ -94,7 +99,7 @@ func (b *Background) SetArtURL(artURL string) {
 
 		var texture *gdk.Texture
 		if err == nil && raw != nil {
-			texture, err = art.Background(raw)
+			texture, err = art.Background(raw, blur)
 			if err != nil {
 				slog.Warn("art: process failed", "url", artURL, "err", err)
 			}
@@ -104,19 +109,44 @@ func (b *Background) SetArtURL(artURL string) {
 			if ctx.Err() != nil {
 				return
 			}
+			b.raw = raw
 			if texture == nil {
 				b.stack.SetVisibleChild(b.empty)
 				return
 			}
-			b.show(texture)
+			b.Show(texture)
 		})
 	}()
 }
 
-func (b *Background) show(texture *gdk.Texture) {
+func (b *Background) SetBlur(radius float64) {
+	if radius == b.blur {
+		return
+	}
+	b.blur = radius
+
+	if b.raw == nil {
+		return
+	}
+	raw := b.raw
+	go func() {
+		texture, err := art.Background(raw, radius)
+		if err != nil {
+			return
+		}
+		glib.IdleAdd(func() {
+			if radius != b.blur {
+				return
+			}
+			b.Show(texture)
+		})
+	}()
+}
+
+func (b *Background) Show(p gdk.Paintabler) {
 	layer := b.layers[b.next]
 	b.next = 1 - b.next
 
-	layer.SetPaintable(texture)
+	layer.SetPaintable(p)
 	b.stack.SetVisibleChild(layer)
 }

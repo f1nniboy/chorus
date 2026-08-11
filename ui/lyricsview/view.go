@@ -1,4 +1,4 @@
-package ui
+package lyricsview
 
 import (
 	"errors"
@@ -31,7 +31,7 @@ type line struct {
 	end    time.Duration
 }
 
-type LyricsView struct {
+type View struct {
 	lastScrollAt time.Time
 	*gtk.Stack
 	contentScroll      *gtk.ScrolledWindow
@@ -44,33 +44,42 @@ type LyricsView struct {
 	currentIdx         int
 	programmaticScroll bool
 	canSeek            bool
+	preview            bool
 }
 
-func (view *LyricsView) OnSeek(f func(pos time.Duration)) {
+func (view *View) MakePreview() {
+	view.preview = true
+	view.SetVhomogeneous(false)
+	view.contentBox.SetMarginTop(0)
+	view.contentBox.SetMarginBottom(0)
+	view.contentScroll.SetPolicy(gtk.PolicyNever, gtk.PolicyNever)
+	view.contentScroll.SetPropagateNaturalHeight(true)
+	view.contentScroll.SetKineticScrolling(false)
+}
+
+func (view *View) OnSeek(f func(pos time.Duration)) {
 	view.onSeek = f
 }
 
-func (view *LyricsView) seekTo(pos time.Duration) {
+func (view *View) seekTo(pos time.Duration) {
 	view.lastScrollAt = time.Time{}
 	view.onSeek(pos)
 }
 
-func NewLyricsView() *LyricsView {
+func New() *View {
 	stack := gtk.NewStack()
 	stack.SetTransitionType(gtk.StackTransitionTypeCrossfade)
 
-	lv := &LyricsView{Stack: stack, currentIdx: -1}
+	lv := &View{Stack: stack, currentIdx: -1}
 
 	lv.status = adw.NewStatusPage()
 	lv.status.AddCSSClass("compact")
 	stack.AddNamed(lv.status, "status")
 
-	lv.contentBox = gtk.NewBox(gtk.OrientationVertical, lineSpacingPx)
-	lv.contentBox.SetVAlign(gtk.AlignCenter)
+	lv.contentBox = gtk.NewBox(gtk.OrientationVertical, 0)
 	lv.contentBox.SetMarginStart(contentMarginPx)
 	lv.contentBox.SetMarginEnd(contentMarginPx)
-	lv.contentBox.SetMarginTop(scrollRunwayMinPx)
-	lv.contentBox.SetMarginBottom(scrollRunwayMinPx)
+
 	lv.contentScroll = gtk.NewScrolledWindow()
 	lv.contentScroll.SetPolicy(gtk.PolicyNever, gtk.PolicyExternal)
 	lv.contentScroll.SetChild(lv.contentBox)
@@ -106,7 +115,7 @@ func NewLyricsView() *LyricsView {
 	return lv
 }
 
-func (view *LyricsView) updateVisiblePage() {
+func (view *View) updateVisiblePage() {
 	if len(view.lines) > 0 {
 		view.Stack.SetVisibleChildName("content")
 		return
@@ -114,7 +123,7 @@ func (view *LyricsView) updateVisiblePage() {
 	view.Stack.SetVisibleChildName("status")
 }
 
-func (view *LyricsView) showStatus(icon, title, desc string) {
+func (view *View) showStatus(icon, title, desc string) {
 	view.status.SetPaintable(nil)
 	view.status.SetIconName(icon)
 	view.status.SetTitle(title)
@@ -122,18 +131,18 @@ func (view *LyricsView) showStatus(icon, title, desc string) {
 	view.updateVisiblePage()
 }
 
-func (view *LyricsView) SetIdle() {
+func (view *View) SetIdle() {
 	view.clear()
 	view.showStatus("audio-x-generic-symbolic", locale.Get("Nothing playing"), locale.Get("Play something and lyrics will show up here."))
 }
 
-func (view *LyricsView) SetLoading() {
+func (view *View) SetLoading() {
 	view.clear()
 	view.showStatus("", "", "")
 	view.status.SetPaintable(adw.NewSpinnerPaintable(view.status))
 }
 
-func (view *LyricsView) SetResult(res lyrics.Result, err error, pb mpris.Playback) {
+func (view *View) SetResult(res lyrics.Result, err error, pb mpris.Playback) {
 	if err != nil {
 		view.clear()
 		if errors.Is(err, lyrics.ErrNotFound) {
@@ -151,19 +160,21 @@ func (view *LyricsView) SetResult(res lyrics.Result, err error, pb mpris.Playbac
 	view.setLines(res, pb)
 }
 
-func (view *LyricsView) setLines(res lyrics.Result, pb mpris.Playback) {
+func (view *View) setLines(res lyrics.Result, pb mpris.Playback) {
 	view.clear()
 
 	view.level = res.Level
 	view.canSeek = pb.CanSeek
 	synced := view.level != lyrics.LevelNone
 
-	if synced {
-		view.contentScroll.SetPolicy(gtk.PolicyNever, gtk.PolicyExternal)
-	} else {
-		view.contentScroll.SetPolicy(gtk.PolicyNever, gtk.PolicyAutomatic)
+	if !view.preview {
+		if synced {
+			view.contentScroll.SetPolicy(gtk.PolicyNever, gtk.PolicyExternal)
+		} else {
+			view.contentScroll.SetPolicy(gtk.PolicyNever, gtk.PolicyAutomatic)
+		}
+		view.contentScroll.SetKineticScrolling(true)
 	}
-	view.contentScroll.SetKineticScrolling(true)
 
 	view.lines = view.buildLines(res, pb.Track.Length)
 	for _, e := range view.lines {
@@ -184,7 +195,7 @@ func (view *LyricsView) setLines(res lyrics.Result, pb mpris.Playback) {
 	view.updateVisiblePage()
 }
 
-func (view *LyricsView) clear() {
+func (view *View) clear() {
 	for _, e := range view.lines {
 		view.contentBox.Remove(e.widget)
 	}
@@ -194,7 +205,7 @@ func (view *LyricsView) clear() {
 	view.lastScrollAt = time.Time{}
 }
 
-func (view *LyricsView) SetPosition(pos time.Duration) {
+func (view *View) SetPosition(pos time.Duration) {
 	if view.level == lyrics.LevelNone {
 		return
 	}
@@ -212,7 +223,7 @@ func (view *LyricsView) SetPosition(pos time.Duration) {
 	}
 }
 
-func (view *LyricsView) setCurrentLine(idx int, animate bool) {
+func (view *View) setCurrentLine(idx int, animate bool) {
 	view.currentIdx = idx
 	view.applyLineStates()
 	if view.shouldFollow() {
@@ -220,6 +231,6 @@ func (view *LyricsView) setCurrentLine(idx int, animate bool) {
 	}
 }
 
-func (view *LyricsView) shouldFollow() bool {
+func (view *View) shouldFollow() bool {
 	return view.lastScrollAt.IsZero() || time.Since(view.lastScrollAt) >= manualScrollDuration
 }

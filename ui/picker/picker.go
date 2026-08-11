@@ -1,4 +1,4 @@
-package ui
+package picker
 
 import (
 	"context"
@@ -34,7 +34,7 @@ type Picker struct {
 	current   string
 }
 
-func NewPicker(resolver *art.Resolver) *Picker {
+func New(resolver *art.Resolver) *Picker {
 	button := gtk.NewMenuButton()
 	button.SetIconName("multimedia-player-symbolic")
 	button.SetTooltipText(locale.Get("Choose player"))
@@ -188,6 +188,7 @@ func (pp *Picker) buildRow(p mpris.Player) *playerRow {
 	artist.SetXAlign(0)
 	artist.SetEllipsize(pango.EllipsizeEnd)
 	artist.AddCSSClass("player-row-artist")
+	artist.AddCSSClass("dim-label")
 
 	text := gtk.NewBox(gtk.OrientationVertical, 2)
 	text.SetVAlign(gtk.AlignCenter)

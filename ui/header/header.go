@@ -1,4 +1,4 @@
-package ui
+package header
 
 import (
 	"github.com/diamondburned/gotk4-adwaita/pkg/adw"
@@ -7,25 +7,25 @@ import (
 
 	"github.com/f1nniboy/chorus/internal/art"
 	"github.com/f1nniboy/chorus/internal/locale"
+	"github.com/f1nniboy/chorus/ui/picker"
 )
 
 type Header struct {
 	Revealer *gtk.Revealer
-
-	Bar    *adw.HeaderBar
-	Picker *Picker
+	Bar      *adw.HeaderBar
+	Picker   *picker.Picker
 }
 
-func NewHeader(artResolver *art.Resolver) *Header {
+func New(artResolver *art.Resolver) *Header {
 	bar := adw.NewHeaderBar()
 	bar.SetShowTitle(false)
 	bar.AddCSSClass("flat")
 
-	picker := NewPicker(artResolver)
-	bar.PackStart(picker)
+	p := picker.New(artResolver)
+	bar.PackStart(p)
 
 	menu := gio.NewMenu()
-	menu.Append(locale.Get("Settings"), "app.settings")
+	menu.Append(locale.Get("Preferences"), "app.preferences")
 	menu.Append(locale.Get("About"), "app.about")
 
 	menuButton := gtk.NewMenuButton()
@@ -37,8 +37,10 @@ func NewHeader(artResolver *art.Resolver) *Header {
 	revealer.SetTransitionType(gtk.RevealerTransitionTypeCrossfade)
 	revealer.SetChild(bar)
 	revealer.SetRevealChild(false)
+	revealer.SetHAlign(gtk.AlignFill)
+	revealer.SetVAlign(gtk.AlignStart)
 
-	return &Header{Revealer: revealer, Bar: bar, Picker: picker}
+	return &Header{Revealer: revealer, Bar: bar, Picker: p}
 }
 
 func (h *Header) SetRevealed(revealed bool) {

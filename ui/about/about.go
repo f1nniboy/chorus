@@ -1,4 +1,4 @@
-package ui
+package about
 
 import (
 	"github.com/diamondburned/gotk4-adwaita/pkg/adw"
@@ -7,7 +7,7 @@ import (
 	"github.com/f1nniboy/chorus/internal/meta"
 )
 
-func NewAboutDialog() *adw.AboutDialog {
+func New() *adw.AboutDialog {
 	dialog := adw.NewAboutDialog()
 	dialog.SetApplicationName(meta.AppName)
 	dialog.SetApplicationIcon(meta.AppID)

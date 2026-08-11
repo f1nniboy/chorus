@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"sync/atomic"
@@ -14,7 +15,7 @@ import (
 	"github.com/f1nniboy/chorus/internal/lyrics"
 	"github.com/f1nniboy/chorus/internal/mpris"
 	"github.com/f1nniboy/chorus/internal/providers"
-	"github.com/f1nniboy/chorus/ui"
+	"github.com/f1nniboy/chorus/ui/lyricsview"
 )
 
 const fetchTimeout = 30 * time.Second
@@ -23,17 +24,16 @@ type controller struct {
 	cfg        *config.Config
 	httpClient *http.Client
 	diskCache  *cache.Cache
-	view       *ui.LyricsView
+	view       *lyricsview.View
 	mgr        *mpris.Manager
 	fetcher    atomic.Pointer[lyrics.Fetcher]
 	cancel     context.CancelFunc
-	fetchKey   string
 	playback   mpris.Playback
 }
 
-func newController(cfg *config.Config, httpClient *http.Client, diskCache *cache.Cache, view *ui.LyricsView, mgr *mpris.Manager) (*controller, error) {
+func newController(cfg *config.Config, httpClient *http.Client, diskCache *cache.Cache, view *lyricsview.View, mgr *mpris.Manager) (*controller, error) {
 	name := cfg.ProviderName()
-	p, err := providers.New(name, cfg.ProviderConfig(name), httpClient)
+	p, err := providers.New(name, cfg.ProviderConfig(), httpClient)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,16 @@ func newController(cfg *config.Config, httpClient *http.Client, diskCache *cache
 		mgr:        mgr,
 	}
 	c.fetcher.Store(lyrics.NewFetcher(p, diskCache))
+	c.watchConfig()
 	return c, nil
+}
+
+func (c *controller) watchConfig() {
+	c.cfg.ConnectChanged(func(key string) {
+		if key == "provider" || key == "provider-config" {
+			c.rebuildProvider()
+		}
+	})
 }
 
 func (c *controller) SeekTo(pos time.Duration) {
@@ -54,9 +63,9 @@ func (c *controller) SeekTo(pos time.Duration) {
 	}
 }
 
-func (c *controller) RebuildProvider() {
+func (c *controller) rebuildProvider() {
 	name := c.cfg.ProviderName()
-	cfg := c.cfg.ProviderConfig(name)
+	cfg := c.cfg.ProviderConfig()
 
 	go func() {
 		p, err := providers.New(name, cfg, c.httpClient)
@@ -90,7 +99,6 @@ func (c *controller) UpdatePosition(pos time.Duration) {
 
 func (c *controller) Idle() {
 	c.playback = mpris.Playback{}
-	c.fetchKey = ""
 	if c.cancel != nil {
 		c.cancel()
 	}
@@ -104,15 +112,11 @@ func (c *controller) fetch(track mpris.Track) {
 		c.cancel()
 	}
 
-	key := c.cfg.ProviderName() + track.Key()
-	c.fetchKey = key
-
 	ctx, cancel := context.WithTimeout(context.Background(), fetchTimeout)
 	c.cancel = cancel
 
 	go func() {
 		defer cancel()
-
 		f := c.fetcher.Load()
 
 		res, err := f.Get(ctx, lyrics.TrackQuery{
@@ -123,7 +127,7 @@ func (c *controller) fetch(track mpris.Track) {
 		})
 
 		glib.IdleAdd(func() {
-			if key != c.fetchKey {
+			if errors.Is(err, context.Canceled) {
 				return
 			}
 			c.view.SetResult(res, err, c.playback)

@@ -23,7 +23,9 @@ import (
 	"github.com/f1nniboy/chorus/internal/meta"
 	"github.com/f1nniboy/chorus/internal/mpris"
 	"github.com/f1nniboy/chorus/internal/providers/base"
-	"github.com/f1nniboy/chorus/ui"
+	"github.com/f1nniboy/chorus/ui/about"
+	"github.com/f1nniboy/chorus/ui/settings"
+	"github.com/f1nniboy/chorus/ui/window"
 )
 
 const httpClientTimeout = 15 * time.Second
@@ -60,13 +62,13 @@ func main() {
 		}
 
 		httpClient := base.NewClient(httpClientTimeout)
-		artResolver := art.NewResolver(httpClient, ca)
+		artResolver := art.New(httpClient, ca)
 
-		win := ui.NewWindow(app, cfg, artResolver)
+		win := window.New(app, cfg, artResolver)
 
 		aboutAction := gio.NewSimpleAction("about", nil)
 		aboutAction.ConnectActivate(func(_ *glib.Variant) {
-			ui.NewAboutDialog().Present(win)
+			about.New().Present(win)
 		})
 		app.AddAction(aboutAction)
 
@@ -81,12 +83,12 @@ func main() {
 			log.Fatal(err)
 		}
 
-		settings := ui.NewSettings(cfg, ca, controller.RebuildProvider)
-		settingsAction := gio.NewSimpleAction("settings", nil)
-		settingsAction.ConnectActivate(func(_ *glib.Variant) {
-			settings.Present(win)
+		prefs := settings.New(cfg)
+		preferencesAction := gio.NewSimpleAction("preferences", nil)
+		preferencesAction.ConnectActivate(func(_ *glib.Variant) {
+			prefs.Present(win)
 		})
-		app.AddAction(settingsAction)
+		app.AddAction(preferencesAction)
 
 		win.Header.Picker.OnSelect(mgr.SelectPlayer)
 		win.Lyrics.OnSeek(controller.SeekTo)

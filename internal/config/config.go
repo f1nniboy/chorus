@@ -14,6 +14,14 @@ type Config struct {
 	*gio.Settings
 }
 
+type Appearance struct {
+	Size              float64
+	Blur              float64
+	Padding           float64
+	BackgroundBlur    float64
+	BackgroundOpacity float64
+}
+
 func New() (*Config, error) {
 	source := gio.SettingsSchemaSourceGetDefault()
 	if source == nil {
@@ -26,15 +34,6 @@ func New() (*Config, error) {
 	return &Config{Settings: gio.NewSettings(meta.AppID)}, nil
 }
 
-func (c *Config) WindowSize() (width, height int) {
-	return int(c.Int("window-width")), int(c.Int("window-height"))
-}
-
-func (c *Config) SetWindowSize(width, height int) {
-	c.SetInt("window-width", width)
-	c.SetInt("window-height", height)
-}
-
 func (c *Config) ProviderName() string {
 	return c.String("provider")
 }
@@ -43,23 +42,24 @@ func (c *Config) SetProviderName(name string) {
 	c.SetString("provider", name)
 }
 
-func (c *Config) allProviderConfigs() map[string]map[string]any {
-	var all map[string]map[string]any
-	json.Unmarshal([]byte(c.String("provider-config")), &all) //nolint:errcheck // zero value is fine
-	return all
-}
-
-func (c *Config) ProviderConfig(providerID string) map[string]any {
-	return c.allProviderConfigs()[providerID]
-}
-
-func (c *Config) SetProviderConfig(providerID string, cfg map[string]any) {
-	all := c.allProviderConfigs()
-	if all == nil {
-		all = make(map[string]map[string]any)
+func (c *Config) Appearance() Appearance {
+	return Appearance{
+		Size:              c.Double("lyrics-size"),
+		Blur:              c.Double("lyrics-blur"),
+		Padding:           c.Double("lyrics-padding"),
+		BackgroundBlur:    c.Double("background-blur"),
+		BackgroundOpacity: c.Double("background-opacity"),
 	}
-	all[providerID] = cfg
-	data, err := json.Marshal(all)
+}
+
+func (c *Config) ProviderConfig() map[string]any {
+	var cfg map[string]any
+	json.Unmarshal([]byte(c.String("provider-config")), &cfg) //nolint:errcheck // zero value is fine
+	return cfg
+}
+
+func (c *Config) SetProviderConfig(cfg map[string]any) {
+	data, err := json.Marshal(cfg)
 	if err != nil {
 		return
 	}

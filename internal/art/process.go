@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"image"
-	_ "image/gif"  // register GIF decoder
-	_ "image/jpeg" // register JPEG decoder
+	_ "image/gif" // register GIF decoder
+	"image/jpeg"
 	"image/png"
 
 	_ "golang.org/x/image/webp" // register WEBP decoder
@@ -17,33 +17,53 @@ import (
 )
 
 const (
-	blurRadius  = 80.0
-	maxBlurSize = 100
+	maxArtSize        = 512
+	minBackgroundSize = 32
+	imageQuality      = 70
 )
 
-func Background(raw []byte) (*gdk.Texture, error) {
-	img, err := decode(raw, maxBlurSize)
+func Normalize(raw []byte) ([]byte, error) {
+	img, err := decode(raw)
 	if err != nil {
 		return nil, err
 	}
 
-	blurred := blur.Gaussian(img, blurRadius)
+	var buf bytes.Buffer
+	if err := jpeg.Encode(&buf, square(img, maxArtSize), &jpeg.Options{Quality: imageQuality}); err != nil {
+		return nil, fmt.Errorf("art: encode artwork: %w", err)
+	}
+	return buf.Bytes(), nil
+}
 
-	return encodeTexture(blurred)
+func Background(raw []byte, frac float64) (*gdk.Texture, error) {
+	size := int(maxArtSize - float64(maxArtSize-minBackgroundSize)*frac)
+
+	img, err := decode(raw)
+	if err != nil {
+		return nil, err
+	}
+	img = square(img, size)
+
+	if radius := frac * float64(size); radius > 0 {
+		img = blur.Gaussian(img, radius)
+	}
+	return encodeTexture(img)
 }
 
 func Thumbnail(raw []byte, size int) (*gdk.Texture, error) {
-	// we need some headroom in case the image is not a square,
-	// e.g. YouTube thumbnails
-	img, err := decode(raw, size*4)
+	img, err := decode(raw)
 	if err != nil {
 		return nil, err
 	}
+	return encodeTexture(square(img, size))
+}
 
-	cropped := transform.Crop(img, centeredSquare(img.Bounds()))
-	small := transform.Resize(cropped, size, size, transform.Linear)
-
-	return encodeTexture(small)
+func square(img image.Image, size int) image.Image {
+	img = transform.Crop(img, centeredSquare(img.Bounds()))
+	if img.Bounds().Dx() > size {
+		img = transform.Resize(img, size, size, transform.Linear)
+	}
+	return img
 }
 
 func centeredSquare(b image.Rectangle) image.Rectangle {
@@ -56,26 +76,12 @@ func centeredSquare(b image.Rectangle) image.Rectangle {
 	return image.Rect(x0, y0, x0+side, y0+side)
 }
 
-func decode(raw []byte, maxDim int) (image.Image, error) {
+func decode(raw []byte) (image.Image, error) {
 	img, _, err := image.Decode(bytes.NewReader(raw))
 	if err != nil {
 		return nil, fmt.Errorf("art: decode image: %w", err)
 	}
-
-	b := img.Bounds()
-	if b.Dx() <= maxDim && b.Dy() <= maxDim {
-		return img, nil
-	}
-
-	w, h := b.Dx(), b.Dy()
-	if w > h {
-		h = h * maxDim / w
-		w = maxDim
-	} else {
-		w = w * maxDim / h
-		h = maxDim
-	}
-	return transform.Resize(img, w, h, transform.Linear), nil
+	return img, nil
 }
 
 func encodeTexture(img image.Image) (*gdk.Texture, error) {

@@ -21,11 +21,10 @@ Chorus watches whatever media player is running on your system and shows synced 
 
 ## Features
 
-- Follows any MPRIS-compatible player automatically, or you can pick one manually
+- Follows any music player automatically, or lets you pick one manually
 - Synced lyrics scroll and highlight the current line as the song plays
+- Click any line to seek directly to it
 - Blurred cover art as a live background
-- Click-to-seek for synced lyrics
-- Various lyrics providers, [lrcmux](https://github.com/f1nniboy/lrcmux) by default
 
 ## Recommended players
 
@@ -51,7 +50,7 @@ Chorus works with any MPRIS-compatible player, but not all players implement MPR
 ### Flatpak
 
 <p>
-  <a href="https://flathub.org/apps/space.f1nn.chorus"><img src="https://flathub.org/assets/badges/flathub-badge-en.png" width="200"/></a>
+  <a href="https://flathub.org/apps/space.f1nn.chorus"><img src="https://flathub.org/api/badge?svg&locale=en" width="200" alt="Download on Flathub"/></a>
 </p>
 
 Alternatively, download the `.flatpak` for your architecture from the [latest release](https://github.com/f1nniboy/chorus/releases/latest), and install it.

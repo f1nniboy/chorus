@@ -1,9 +1,13 @@
-window.app-window {
+.cover-backdrop {
     background: linear-gradient(160deg, #2e2e38, #16161c);
 }
 
-window.app-window:not(.dark) {
+window.app-window:not(.dark) .cover-backdrop {
     background: linear-gradient(160deg, #e4e4ea, #c9c9d3);
+}
+
+.cover:not(.tint) {
+    opacity: var(--bg-opacity);
 }
 
 .cover.tint {
@@ -16,10 +20,17 @@ window.app-window:not(.dark) .cover.tint {
 }
 
 .line {
-    font-size: 22px;
+    --font-base: 22px;
+    --blur-max: 6px;
+
+    --font-size: calc(var(--font-base) * var(--font-scale));
+
+    font-size: var(--font-size);
     font-weight: 600;
     opacity: 0.3;
-    filter: blur(2px);
+    filter: blur(calc(var(--text-blur) * var(--blur-max)));
+    padding-top: calc(var(--line-padding) * 1em);
+    padding-bottom: calc(var(--line-padding) * 1em);
     transform: scale(0.8);
     transform-origin: 50% 50%;
     transition:
@@ -30,7 +41,7 @@ window.app-window:not(.dark) .cover.tint {
 
 .line.near {
     opacity: 0.5;
-    filter: blur(1px);
+    filter: blur(calc(var(--text-blur) * var(--blur-max) / 2));
     transform: scale(0.9);
 }
 
@@ -41,7 +52,7 @@ window.app-window:not(.dark) .cover.tint {
 }
 
 .line.plain {
-    font-size: 20px;
+    font-size: calc(var(--font-size) - 2px);
     font-weight: 500;
     opacity: 0.85;
     filter: none;
@@ -61,7 +72,7 @@ window.app-window:not(.dark) .cover.tint {
 }
 
 .dot {
-    font-size: 14px;
+    font-size: calc(var(--font-size) * 0.6);
     opacity: 0.3;
     transform: scale(0.7);
     transition: all 2s ease;
@@ -86,10 +97,9 @@ window.app-window:not(.dark) .cover.tint {
 }
 
 .player-row-title.current {
-    color: @accent_color;
+    color: var(--accent-color);
 }
 
 .player-row-artist {
     font-size: 0.9em;
-    opacity: 0.7;
 }
