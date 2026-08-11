@@ -32,15 +32,15 @@ msgstr ""
 msgid "Configuration"
 msgstr ""
 
-#: ui/lyricsview/view.go:152
+#: ui/lyricsview/view.go:153
 msgid "Couldn't fetch lyrics"
 msgstr ""
 
-#: ui/lyricsview/view.go:150
+#: ui/lyricsview/view.go:151
 msgid "No lyrics"
 msgstr ""
 
-#: ui/lyricsview/view.go:137
+#: ui/lyricsview/view.go:138
 msgid "Nothing playing"
 msgstr ""
 
@@ -52,7 +52,7 @@ msgstr ""
 msgid "Padding"
 msgstr ""
 
-#: ui/lyricsview/view.go:137
+#: ui/lyricsview/view.go:138
 msgid "Play something and lyrics will show up here."
 msgstr ""
 

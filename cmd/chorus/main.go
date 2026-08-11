@@ -28,7 +28,10 @@ import (
 	"github.com/f1nniboy/chorus/ui/window"
 )
 
-const httpClientTimeout = 15 * time.Second
+const (
+	httpClientTimeout = 15 * time.Second
+	positionPollMs    = 100
+)
 
 //go:generate glib-compile-schemas ../../data
 //go:generate go run ../potgen
@@ -93,7 +96,7 @@ func main() {
 		win.Header.Picker.OnSelect(mgr.SelectPlayer)
 		win.Lyrics.OnSeek(controller.SeekTo)
 
-		win.Lyrics.AddTickCallback(func(gtk.Widgetter, gdk.FrameClocker) bool {
+		glib.TimeoutAdd(positionPollMs, func() bool {
 			controller.UpdatePosition(mgr.CurrentPosition())
 			return true
 		})
