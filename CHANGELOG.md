@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.6.0](https://github.com/f1nniboy/chorus/compare/v0.5.1...v0.6.0) (2026-08-11)
+
+
+### Features
+
+* **settings:** add appearance controls for text and background ([3cc134e](https://github.com/f1nniboy/chorus/commit/3cc134e521e4ddc12ff2ecc834395075600a153e))
+* **settings:** rename to preferences, revamp provider config ([3cc134e](https://github.com/f1nniboy/chorus/commit/3cc134e521e4ddc12ff2ecc834395075600a153e))
+
+
+### Bug fixes
+
+* **app:** only ever create a single window ([57013a1](https://github.com/f1nniboy/chorus/commit/57013a14c5affbd29e615baa4ea02f85f9ce9eb6))
+* **metainfo:** pin new screenshots to commit ([27291a3](https://github.com/f1nniboy/chorus/commit/27291a3863b68b131fc5ee4ebbe39ba74524b907))
+* **metainfo:** refresh screenshots, mention click-to-seek ([3cc134e](https://github.com/f1nniboy/chorus/commit/3cc134e521e4ddc12ff2ecc834395075600a153e))
+* shorten tagline ([563aa4d](https://github.com/f1nniboy/chorus/commit/563aa4d620be7c6f55a752052fd25a067288ae96))
+
+
+### Performance
+
+* **art:** scale background resolution to blur, store art compressed ([3cc134e](https://github.com/f1nniboy/chorus/commit/3cc134e521e4ddc12ff2ecc834395075600a153e))
+* **ui:** reuse scroll animation ([758ca72](https://github.com/f1nniboy/chorus/commit/758ca726871f03d4880e2d1acfb320dcab75289d))
+
+
+### Documentation
+
+* **readme:** use new flathub badge ([3cc134e](https://github.com/f1nniboy/chorus/commit/3cc134e521e4ddc12ff2ecc834395075600a153e))
+
+
+### Refactors
+
+* **config:** watch gsettings for appearance and provider ([3cc134e](https://github.com/f1nniboy/chorus/commit/3cc134e521e4ddc12ff2ecc834395075600a153e))
+* **ui:** split flat ui package into per-component packages ([3cc134e](https://github.com/f1nniboy/chorus/commit/3cc134e521e4ddc12ff2ecc834395075600a153e))
+* **window:** bind window state to gsettings ([3cc134e](https://github.com/f1nniboy/chorus/commit/3cc134e521e4ddc12ff2ecc834395075600a153e))
+
 ## [0.5.1](https://github.com/f1nniboy/chorus/compare/v0.5.0...v0.5.1) (2026-08-02)
 
 
