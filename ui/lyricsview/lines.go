@@ -51,10 +51,11 @@ func (view *View) attachClick(l *line) {
 	if l.kind != kindSyncedLine || view.onSeek == nil || !view.canSeek {
 		return
 	}
+	start := l.start
 	click := gtk.NewGestureClick()
 	click.ConnectReleased(func(nPress int, _, _ float64) {
 		if nPress == 1 {
-			view.seekTo(l.start)
+			view.seekTo(start)
 		}
 	})
 	l.widget.AddController(click)
@@ -142,5 +143,11 @@ func applyInstrumentalDots(l line, pos time.Duration) {
 		} else {
 			d.RemoveCSSClass("active")
 		}
+	}
+
+	if pos >= l.end-scrollAnimMs*time.Millisecond {
+		l.widget.AddCSSClass("ending")
+	} else {
+		l.widget.RemoveCSSClass("ending")
 	}
 }

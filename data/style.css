@@ -19,6 +19,18 @@ window.app-window:not(.dark) .cover.tint {
     background: white;
 }
 
+@keyframes line-highlight {
+    0% {
+        text-shadow: 0 0 0 transparent;
+    }
+    50% {
+        text-shadow: 0 0 calc(var(--font-size) * 0.5) alpha(currentColor, 0.4);
+    }
+    100% {
+        text-shadow: 0 0 0 transparent;
+    }
+}
+
 .line {
     --font-base: 22px;
     --blur-max: 6px;
@@ -34,9 +46,9 @@ window.app-window:not(.dark) .cover.tint {
     transform: scale(0.8);
     transform-origin: 50% 50%;
     transition:
-        opacity 250ms ease,
-        filter 250ms ease,
-        transform 250ms ease;
+        opacity 500ms ease,
+        filter 500ms ease,
+        transform 500ms ease;
 }
 
 .line.near {
@@ -49,6 +61,7 @@ window.app-window:not(.dark) .cover.tint {
     opacity: 1;
     filter: none;
     transform: scale(1);
+    animation: line-highlight 1000ms ease-out;
 }
 
 .line.plain {
@@ -69,6 +82,11 @@ window.app-window:not(.dark) .cover.tint {
 .instrumental.current {
     opacity: 1;
     transform: scale(1);
+}
+
+.instrumental.current.ending {
+    transform: scale(1.3);
+    text-shadow: 0 0 var(--font-size) currentColor;
 }
 
 .dot {

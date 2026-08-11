@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	scrollAnimMs = 400
+	scrollAnimMs = 500
 
 	// how long after a manual scroll before auto-follow resumes
 	manualScrollDuration = 3 * time.Second
