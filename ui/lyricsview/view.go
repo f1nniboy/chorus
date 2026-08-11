@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/diamondburned/gotk4-adwaita/pkg/adw"
+	coreglib "github.com/diamondburned/gotk4/pkg/core/glib"
 	"github.com/diamondburned/gotk4/pkg/glib/v2"
 	"github.com/diamondburned/gotk4/pkg/gtk/v4"
 
@@ -34,17 +35,17 @@ type line struct {
 type View struct {
 	lastScrollAt time.Time
 	*gtk.Stack
-	contentScroll      *gtk.ScrolledWindow
-	contentBox         *gtk.Box
-	scrollAnim         *adw.TimedAnimation
-	status             *adw.StatusPage
-	onSeek             func(pos time.Duration)
-	level              lyrics.Level
-	lines              []line
-	currentIdx         int
-	programmaticScroll bool
-	canSeek            bool
-	preview            bool
+	contentScroll *gtk.ScrolledWindow
+	contentBox    *gtk.Box
+	scrollAnim    *adw.TimedAnimation
+	status        *adw.StatusPage
+	onSeek        func(pos time.Duration)
+	level         lyrics.Level
+	lines         []line
+	currentIdx    int
+	changeSignal  coreglib.SignalHandle
+	canSeek       bool
+	preview       bool
 }
 
 func (view *View) MakePreview() {
@@ -102,8 +103,8 @@ func New() *View {
 		})
 	})
 
-	adjustment.ConnectValueChanged(func() {
-		if !lv.programmaticScroll && lv.level != lyrics.LevelNone {
+	lv.changeSignal = adjustment.ConnectValueChanged(func() {
+		if lv.level != lyrics.LevelNone {
 			lv.lastScrollAt = time.Now()
 			lv.scrollAnim.Pause()
 		}

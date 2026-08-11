@@ -80,10 +80,8 @@ func (view *View) setScrollTarget(target float64, animate bool) {
 	view.scrollAnim.Play()
 }
 
-// flags the change as our own so the ValueChanged listener in New doesn't
-// mistake it for a manual scroll
 func (view *View) setAdjustmentValue(adj *gtk.Adjustment, value float64) {
-	view.programmaticScroll = true
+	adj.HandlerBlock(view.changeSignal)
 	adj.SetValue(value)
-	view.programmaticScroll = false
+	adj.HandlerUnblock(view.changeSignal)
 }
