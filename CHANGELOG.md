@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.7.0](https://github.com/f1nniboy/chorus/compare/v0.6.1...v0.7.0) (2026-08-12)
+
+
+### Features
+
+* **lyricsview:** line glow, instrumental cue ([ea81e27](https://github.com/f1nniboy/chorus/commit/ea81e27cdccf0b9a056078e4c58a1c3d10cbcce3))
+
+
+### Bug fixes
+
+* **lyricsview:** avoid capturing line widget in click handler ([ea81e27](https://github.com/f1nniboy/chorus/commit/ea81e27cdccf0b9a056078e4c58a1c3d10cbcce3))
+
+
+### Performance
+
+* **lyricsview:** block value-changed during programmatic scroll ([81b4744](https://github.com/f1nniboy/chorus/commit/81b474446f55eddbd9523bd74aa27843fae4922b))
+* poll playback position on a timer instead of every frame ([76ed79a](https://github.com/f1nniboy/chorus/commit/76ed79af00f2d9aac41193508832c11037d1e6bb))
+
 ## [0.6.1](https://github.com/f1nniboy/chorus/compare/v0.6.0...v0.6.1) (2026-08-11)
 
 
