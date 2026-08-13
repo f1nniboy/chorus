@@ -37,15 +37,15 @@ msgstr "Player auswählen"
 msgid "Configuration"
 msgstr "Konfiguration"
 
-#: ui/lyricsview/view.go:151
+#: ui/lyricsview/view.go:152
 msgid "Couldn't fetch lyrics"
 msgstr "Songtext konnte nicht abgerufen werden"
 
-#: ui/lyricsview/view.go:149
+#: ui/lyricsview/view.go:150
 msgid "No lyrics"
 msgstr "Kein Songtext"
 
-#: ui/lyricsview/view.go:136
+#: ui/lyricsview/view.go:137
 msgid "Nothing playing"
 msgstr "Nichts wird wiedergegeben"
 
@@ -57,7 +57,7 @@ msgstr "Deckkraft"
 msgid "Padding"
 msgstr "Abstand"
 
-#: ui/lyricsview/view.go:136
+#: ui/lyricsview/view.go:137
 msgid "Play something and lyrics will show up here."
 msgstr "Spiele etwas ab und der Songtext wird hier angezeigt."
 
