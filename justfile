@@ -12,10 +12,6 @@ run: schemas
 gen:
     go generate ./...
 
-new-lang lang: gen
-    mkdir -p data/po/{{lang}}
-    msginit --no-translator --input=data/po/default.pot --locale={{lang}} --output=data/po/{{lang}}/default.po
-
 lint:
     golangci-lint run ./...
 
@@ -41,12 +37,6 @@ fix: fmt
 
 fmt:
     treefmt
-
-test:
-    go test ./...
-
-coverage:
-    go test ./... -coverprofile=/tmp/chorus.out && go tool cover -func=/tmp/chorus.out
 
 update:
     go get -u ./...
