@@ -6,75 +6,77 @@ msgstr ""
 "Language: zh_Hans\n"
 "Language-Team: none\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"PO-Revision-Date: 2026-09-02 09:51+0000\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: ui/header/header.go:29
 msgid "About"
-msgstr ""
+msgstr "关于"
 
 #: ui/settings/settings.go:39
 msgid "Appearance"
-msgstr ""
+msgstr "外观"
 
 #: ui/settings/settings.go:61
 msgid "Background"
-msgstr ""
+msgstr "背景"
 
 #: internal/providers/lrcmux/lrcmux.go:21
 msgid "Base URL"
-msgstr ""
+msgstr "基础URL"
 
 #: ui/settings/settings.go:57 ui/settings/settings.go:64
 msgid "Blur"
-msgstr ""
+msgstr "模糊"
 
 #: ui/picker/picker.go:40
 msgid "Choose player"
-msgstr ""
+msgstr "选择播放器"
 
 #: ui/settings/provider.go:66
 msgid "Configuration"
-msgstr ""
+msgstr "配置"
 
 #: ui/lyricsview/view.go:152
 msgid "Couldn't fetch lyrics"
-msgstr ""
+msgstr "无法获取歌词"
 
 #: ui/lyricsview/view.go:150
 msgid "No lyrics"
-msgstr ""
+msgstr "无歌词"
 
 #: ui/lyricsview/view.go:137
 msgid "Nothing playing"
-msgstr ""
+msgstr "未播放"
 
 #: ui/settings/settings.go:65
 msgid "Opacity"
-msgstr ""
+msgstr "透明度"
 
 #: ui/settings/settings.go:58
 msgid "Padding"
-msgstr ""
+msgstr "填充"
 
 #: ui/lyricsview/view.go:137
 msgid "Play something and lyrics will show up here."
-msgstr ""
+msgstr "播放音乐，此处将显示歌词。"
 
 #: ui/header/header.go:28 ui/settings/settings.go:36
 msgid "Preferences"
-msgstr ""
+msgstr "首选项"
 
 #: ui/settings/settings.go:68
 msgid "Preview"
-msgstr ""
+msgstr "预览"
 
 #: ui/settings/provider.go:24 ui/settings/settings.go:45
 msgid "Provider"
-msgstr ""
+msgstr "提供方"
 
 #: ui/settings/settings.go:56
 msgid "Size"
-msgstr ""
+msgstr "尺寸"
 
 #: ui/settings/settings.go:53
 msgid "Text"
-msgstr ""
+msgstr "文本"
