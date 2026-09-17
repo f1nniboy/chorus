@@ -6,75 +6,77 @@ msgstr ""
 "Language: ca\n"
 "Language-Team: none\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"PO-Revision-Date: 2026-09-17 20:25+0000\n"
+"X-Generator: Weblate 2026.10.dev0\n"
 
 #: ui/header/header.go:29
 msgid "About"
-msgstr ""
+msgstr "Quant a"
 
 #: ui/settings/settings.go:39
 msgid "Appearance"
-msgstr ""
+msgstr "Aspecte"
 
 #: ui/settings/settings.go:61
 msgid "Background"
-msgstr ""
+msgstr "Fons"
 
 #: internal/providers/lrcmux/lrcmux.go:21
 msgid "Base URL"
-msgstr ""
+msgstr "URL base"
 
 #: ui/settings/settings.go:57 ui/settings/settings.go:64
 msgid "Blur"
-msgstr ""
+msgstr "Difuminat"
 
 #: ui/picker/picker.go:40
 msgid "Choose player"
-msgstr ""
+msgstr "Trieu un reproductor"
 
 #: ui/settings/provider.go:66
 msgid "Configuration"
-msgstr ""
+msgstr "Configuració"
 
 #: ui/lyricsview/view.go:152
 msgid "Couldn't fetch lyrics"
-msgstr ""
+msgstr "No s'ha pogut recuperar la lletra"
 
 #: ui/lyricsview/view.go:150
 msgid "No lyrics"
-msgstr ""
+msgstr "No hi ha cap lletra"
 
 #: ui/lyricsview/view.go:137
 msgid "Nothing playing"
-msgstr ""
+msgstr "No hi ha res en reproducció"
 
 #: ui/settings/settings.go:65
 msgid "Opacity"
-msgstr ""
+msgstr "Opacitat"
 
 #: ui/settings/settings.go:58
 msgid "Padding"
-msgstr ""
+msgstr "Separació"
 
 #: ui/lyricsview/view.go:137
 msgid "Play something and lyrics will show up here."
-msgstr ""
+msgstr "Reproduïu alguna cosa i la lletra apareixerà aquí."
 
 #: ui/header/header.go:28 ui/settings/settings.go:36
 msgid "Preferences"
-msgstr ""
+msgstr "Preferències"
 
 #: ui/settings/settings.go:68
 msgid "Preview"
-msgstr ""
+msgstr "Previsualització"
 
 #: ui/settings/provider.go:24 ui/settings/settings.go:45
 msgid "Provider"
-msgstr ""
+msgstr "Proveïdor"
 
 #: ui/settings/settings.go:56
 msgid "Size"
-msgstr ""
+msgstr "Mida"
 
 #: ui/settings/settings.go:53
 msgid "Text"
-msgstr ""
+msgstr "Text"
