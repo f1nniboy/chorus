@@ -1,0 +1,80 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: chorus\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fi\n"
+"Language-Team: none\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: ui/header/header.go:29
+msgid "About"
+msgstr ""
+
+#: ui/settings/settings.go:39
+msgid "Appearance"
+msgstr ""
+
+#: ui/settings/settings.go:61
+msgid "Background"
+msgstr ""
+
+#: internal/providers/lrcmux/lrcmux.go:21
+msgid "Base URL"
+msgstr ""
+
+#: ui/settings/settings.go:57 ui/settings/settings.go:64
+msgid "Blur"
+msgstr ""
+
+#: ui/picker/picker.go:40
+msgid "Choose player"
+msgstr ""
+
+#: ui/settings/provider.go:66
+msgid "Configuration"
+msgstr ""
+
+#: ui/lyricsview/view.go:152
+msgid "Couldn't fetch lyrics"
+msgstr ""
+
+#: ui/lyricsview/view.go:150
+msgid "No lyrics"
+msgstr ""
+
+#: ui/lyricsview/view.go:137
+msgid "Nothing playing"
+msgstr ""
+
+#: ui/settings/settings.go:65
+msgid "Opacity"
+msgstr ""
+
+#: ui/settings/settings.go:58
+msgid "Padding"
+msgstr ""
+
+#: ui/lyricsview/view.go:137
+msgid "Play something and lyrics will show up here."
+msgstr ""
+
+#: ui/header/header.go:28 ui/settings/settings.go:36
+msgid "Preferences"
+msgstr ""
+
+#: ui/settings/settings.go:68
+msgid "Preview"
+msgstr ""
+
+#: ui/settings/provider.go:24 ui/settings/settings.go:45
+msgid "Provider"
+msgstr ""
+
+#: ui/settings/settings.go:56
+msgid "Size"
+msgstr ""
+
+#: ui/settings/settings.go:53
+msgid "Text"
+msgstr ""
