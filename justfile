@@ -26,7 +26,7 @@ flatpak-lint:
     flatpak run --command=flatpak-builder-lint org.flatpak.Builder repo repo
 
 metainfo-lint:
-    appstreamcli validate data/space.f1nn.chorus.metainfo.xml
+    appstreamcli validate --no-net data/space.f1nn.chorus.metainfo.xml
 
 desktop-lint:
     desktop-file-validate data/space.f1nn.chorus.desktop

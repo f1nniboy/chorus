@@ -62,6 +62,6 @@ jobs:
       - name: Install packages
         run: sudo apt-get update && sudo apt-get install -y appstream desktop-file-utils
 
-      - run: appstreamcli validate data/space.f1nn.chorus.metainfo.xml
+      - run: appstreamcli validate --no-net data/space.f1nn.chorus.metainfo.xml
 
       - run: desktop-file-validate data/space.f1nn.chorus.desktop
