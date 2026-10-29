@@ -1,82 +1,82 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: chorus\n"
-"PO-Revision-Date: 2026-08-11 17:31+0000\n"
+"PO-Revision-Date: 2026-09-17 14:03+0000\n"
 "Language-Team: none\n"
 "Language: es\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.9.dev0\n"
+"X-Generator: Weblate 2026.10.dev0\n"
 
 #: ui/header/header.go:29
 msgid "About"
-msgstr ""
+msgstr "Acerca de"
 
 #: ui/settings/settings.go:39
 msgid "Appearance"
-msgstr ""
+msgstr "Apariencia"
 
 #: ui/settings/settings.go:61
 msgid "Background"
-msgstr ""
+msgstr "Fondo"
 
 #: internal/providers/lrcmux/lrcmux.go:21
 msgid "Base URL"
-msgstr ""
+msgstr "URL de base"
 
 #: ui/settings/settings.go:57 ui/settings/settings.go:64
 msgid "Blur"
-msgstr ""
+msgstr "Desenfoque"
 
 #: ui/picker/picker.go:40
 msgid "Choose player"
-msgstr ""
+msgstr "Elija un reproductor"
 
 #: ui/settings/provider.go:66
 msgid "Configuration"
-msgstr ""
+msgstr "Configuración"
 
-#: ui/lyricsview/view.go:151
+#: ui/lyricsview/view.go:152
 msgid "Couldn't fetch lyrics"
-msgstr ""
+msgstr "No se pudo recuperar la letra"
 
-#: ui/lyricsview/view.go:149
+#: ui/lyricsview/view.go:150
 msgid "No lyrics"
-msgstr ""
+msgstr "No hay letra"
 
-#: ui/lyricsview/view.go:136
+#: ui/lyricsview/view.go:137
 msgid "Nothing playing"
-msgstr ""
+msgstr "No se reproduce nada"
 
 #: ui/settings/settings.go:65
 msgid "Opacity"
-msgstr ""
+msgstr "Opacidad"
 
 #: ui/settings/settings.go:58
 msgid "Padding"
-msgstr ""
+msgstr "Separación"
 
-#: ui/lyricsview/view.go:136
+#: ui/lyricsview/view.go:137
 msgid "Play something and lyrics will show up here."
-msgstr ""
+msgstr "Reproduzca algo y aquí aparecerá la letra."
 
 #: ui/header/header.go:28 ui/settings/settings.go:36
 msgid "Preferences"
-msgstr ""
+msgstr "Preferencias"
 
 #: ui/settings/settings.go:68
 msgid "Preview"
-msgstr ""
+msgstr "Previsualización"
 
 #: ui/settings/provider.go:24 ui/settings/settings.go:45
 msgid "Provider"
-msgstr ""
+msgstr "Proveedor"
 
 #: ui/settings/settings.go:56
 msgid "Size"
-msgstr ""
+msgstr "Tamaño"
 
 #: ui/settings/settings.go:53
 msgid "Text"
-msgstr ""
+msgstr "Texto"
