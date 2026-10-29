@@ -119,10 +119,11 @@ func (m *Manager) CurrentPosition() time.Duration {
 }
 
 func (m *Manager) Start(ctx context.Context) error {
-	if err := m.conn.AddMatchSignal(
+	err := m.conn.AddMatchSignal(
 		dbus.WithMatchInterface("org.freedesktop.DBus"),
 		dbus.WithMatchMember("NameOwnerChanged"),
-	); err != nil {
+	)
+	if err != nil {
 		return err
 	}
 
